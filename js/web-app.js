@@ -3,8 +3,8 @@ function confirmMsg(message) {
 }
 
 $(function () {
-    $('title').html('*** 預算管理系統 ***');
-    $('#SysTitle').html('預算管理系統');
+    $('title').html('JS版日曆');
+    $('#SysTitle').html('JS版日曆');
     $('#alogout').on('click', function () {
         logout();
         return false;
@@ -290,7 +290,7 @@ Handlebars.registerHelper('addOne', function (value) {
 });
 
 //Font Awesome 的 <i> 標籤用於顯示圖標，使用 Handlebars 的 {{{ triple mustache }}} + 自訂 Helper（安全又靈活）
-Handlebars.registerHelper('tempWithIcon', function(temp) {
+Handlebars.registerHelper('tempWithIcon', function (temp) {
     let colorClass = '';
     let icon = '';
     let textColor = 'white';
@@ -420,7 +420,10 @@ function sysinits() {
         if (top < 8)
             top = rect.bottom + 8;
 
-        $tooltip.css({ top: top + window.scrollY, left: left + window.scrollX });
+        $tooltip.css({
+            top: top + window.scrollY,
+            left: left + window.scrollX
+        });
     }).on('mouseleave', '.select2-tooltip-container', function () {
         $('.select2-floating-tooltip').remove();
     });
@@ -475,7 +478,7 @@ function sysinits() {
 function initSelect2Tooltip(select, parentSelectId) {
     const $select = (typeof select === 'string') ? $('#' + select) : $(select);
     const $parentSelect = parentSelectId ? $('#' + parentSelectId) : null;
-    
+
     $select.select2({
         theme: "bootstrap",
         width: '100%',
@@ -589,11 +592,11 @@ function getObjects(obj, key, val) {
             if (i == key && obj[i] == val || i == key && val == '') { //
                 objects.push(obj);
             } else if (obj[i] == val && key == '') {
-            //only add if the object is not already in the array
-            if (objects.lastIndexOf(obj) == -1) {
-                objects.push(obj);
+                //only add if the object is not already in the array
+                if (objects.lastIndexOf(obj) == -1) {
+                    objects.push(obj);
+                }
             }
-        }
     }
     return objects;
 }

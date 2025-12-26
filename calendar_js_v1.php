@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 
 <head>
     <meta charset="utf-8">
@@ -24,68 +24,68 @@
     </div>
 </body>
 <script>
-var ym = "2025-12"
-initscal(ym);
+    var ym = "2025-12"
+    initscal(ym);
 
-function initscal(ym) {
+    function initscal(ym) {
 
-    var htmls = CreateCal(ym); /* 運用js/web-app.js中的function[InYM]*/
-    $("#tb").html(htmls) /* #將參數丟到ID:tb */
+        var htmls = CreateCal(ym); /* 運用js/web-app.js中的function[InYM]*/
+        $("#tb").html(htmls) /* #將參數丟到ID:tb */
 
-    let cal = [{
-            "2025-12-03": [{
-                    "even": "aaaa"
-                },
-                {
-                    "even": "bbb"
-                },
-                {
-                    "even": "ccc"
-                }
-            ]
-        },
-        {
-            "2025-12-07": [{
-                    "even": "qqq"
-                },
-                {
-                    "even": "ww"
-                }
-            ]
-        }
-    ];
+        let cal = [{
+                "2025-12-03": [{
+                        "even": "aaaa"
+                    },
+                    {
+                        "even": "bbb"
+                    },
+                    {
+                        "even": "ccc"
+                    }
+                ]
+            },
+            {
+                "2025-12-07": [{
+                        "even": "qqq"
+                    },
+                    {
+                        "even": "ww"
+                    }
+                ]
+            }
+        ];
 
-    $.each(cal, function(index, vals) {
-        $.each(vals, function(i, v) {
+        $.each(cal, function(index, vals) {
+            $.each(vals, function(i, v) {
 
-            var dvs = "";
-            $.each(v, function(i1, v1) {
-                dvs += "<span>" + v1.even + "</span><br>";
-                console.log(i1);
-                console.log(v1);
+                var dvs = "";
+                $.each(v, function(i1, v1) {
+                    dvs += "<span>" + v1.even + "</span><br>";
+                    console.log(i1);
+                    console.log(v1);
+                });
+                console.log(vals);
+
+                $("#m_" + i).html(dvs);
             });
-            console.log(vals);
 
-            $("#m_" + i).html(dvs);
         });
+        //下一個月
+        $("#calNext").on("click", function() {
+            var nowym = moment(ym + "-01").add(1, 'M').format("YYYY-MM");
+            ym = nowym
+            console.log("N:" + ym);
+            initscal(ym);
 
-    });
-    //下一個月
-    $("#calNext").on("click", function() {
-        var nowym = moment(ym + "-01").add(1, 'M').format("YYYY-MM");
-        ym = nowym
-        console.log("N:" + ym);
-        initscal(ym);
-
-    });
-    //上一個月
-    $("#calLast").on("click", function() {
-        var nowym = moment(ym + "-01").subtract(1, 'M').format("YYYY-MM");
-        ym = nowym
-        console.log("L:" + ym);
-        initscal(ym);
-    });
-}
+        });
+        //上一個月
+        $("#calLast").on("click", function() {
+            var nowym = moment(ym + "-01").subtract(1, 'M').format("YYYY-MM");
+            ym = nowym
+            console.log("L:" + ym);
+            initscal(ym);
+        });
+    }
 </script>
 
 </html>
