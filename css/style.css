@@ -1,0 +1,19 @@
+.big-table {
+    width: 90%;
+    /* 90% 宽度 */
+    border-collapse: collapse;
+}
+
+.big-table th,
+.big-table td {
+    border: 1px solid #ccc;
+    padding: 15px;
+    /* 增加内边距 */
+    font-size: 18px;
+    /* 增大字号 */
+}
+
+.big-table td {
+    height: 80px;
+    /* 设定行高 */
+}

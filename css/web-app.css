@@ -1,0 +1,110 @@
+body,
+input,
+button,
+textarea {
+    font-family: Arial, "微軟正黑體", "Microsoft JhengHei", "新細明體", PMingLiu, "標楷體", DFKai-sb, "細明體", MingLiu, Verdana, "Trebuchet MS", sans-serif;
+    font-size: 16px;
+}
+
+.px18 {
+    font-size: 18px;
+}
+
+.bgred {
+    background-color: red;
+}
+
+.hidden {
+    display: none;
+}
+
+.pagination {
+    margin: 0;
+}
+
+.select2-selection__rendered {
+    line-height: 31px !important;
+}
+
+.select2-container .select2-selection--single {
+    height: 35px !important;
+}
+
+.select2-selection__arrow {
+    height: 34px !important;
+}
+
+.parsley-errors {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+select {
+    font-family: Arial, "微軟正黑體", "Microsoft JhengHei", "新細明體", PMingLiu, "標楷體", DFKai-sb, "細明體", MingLiu, Verdana, "Trebuchet MS", sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.readonly-field {
+    background-color:rgb(215, 219, 221) !important;
+    border: 1px solid #ced4da;
+    cursor: not-allowed;
+}
+
+.select2-floating-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 16px;
+  white-space: normal;
+  max-width: 250px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.select2-floating-tooltip.show {
+  opacity: 1;
+}
+
+.select2-floating-tooltip::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  bottom: -8px; 
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.expendWrapper {
+    margin-bottom: 100px;
+}
+
+/* 固定底部工具列 */
+.action-bar-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #ccc;
+    padding: 12px 0;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+}
+
+.action-bar-fixed .btn {
+    font-size: 18px;
+    padding: 10px 30px;
+}
+
