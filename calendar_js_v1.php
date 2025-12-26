@@ -70,22 +70,30 @@
             });
 
         });
-        //下一個月
-        $("#calNext").on("click", function() {
-            var nowym = moment(ym + "-01").add(1, 'M').format("YYYY-MM");
-            ym = nowym
-            console.log("N:" + ym);
-            initscal(ym);
-
-        });
-        //上一個月
-        $("#calLast").on("click", function() {
-            var nowym = moment(ym + "-01").subtract(1, 'M').format("YYYY-MM");
-            ym = nowym
-            console.log("L:" + ym);
-            initscal(ym);
-        });
-    }
+        //修改：將事件綁定移到 initscal 函數外部，只綁定一次：
+        $(document).ready(function() {
+                    // 下一個月
+                    $(document).on("click", "#calNext", function() {
+                        var nowym = moment(ym + "-01").add(1, 'M').format("YYYY-MM");
+                        ym = nowym
+                        console.log("N:" + ym);
+                        initscal(ym);
+                    });
+                    // 上一個月
+                    $(document).on("click", "#calLast", function() {
+                        var nowym = moment(ym + "-01").subtract(1, 'M').format("YYYY-MM");
+                        ym = nowym
+                        console.log("L:" + ym);
+                        initscal(ym);
+                    });
+                    // 當月
+                    $(document).on("click", "#calNow", function() {
+                        var nowym = moment().format("YYYY-MM"); // 獲取當前年月 (YYYY-MM)
+                        ym = nowym;
+                        console.log("Now: " + ym); // 修正 log 標記為 "Now:"
+                        initscal(ym); // 重新初始化日曆 });
+                    });
+                }
 </script>
 
 </html>
