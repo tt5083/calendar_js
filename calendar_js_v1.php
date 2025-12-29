@@ -24,76 +24,75 @@
     </div>
 </body>
 <script>
-    var ym = "2025-12"
-    initscal(ym);
+    // 全域變數：目前顯示的年月
+    var ym = "2025-12";
 
+    // 頁面載入完成後，先初始化日曆
+    $(document).ready(function() {
+        initscal(ym);
+
+        // ===== 事件綁定：只寫一次，放在全域，使用事件委派 =====
+        // 下一個月
+        $(document).on("click", "#calNext", function() {
+            var nowym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
+            ym = nowym;
+            console.log("Next: " + ym);
+            initscal(ym);
+        });
+
+        // 上一個月
+        $(document).on("click", "#calLast", function() {
+            var nowym = moment(ym + "-01").subtract(1, 'months').format("YYYY-MM");
+            ym = nowym;
+            console.log("Last: " + ym);
+            initscal(ym);
+        });
+
+        // 本月（今天所屬月份）
+        $(document).on("click", "#calNow", function() {
+            var nowym = moment().format("YYYY-MM");
+            ym = nowym;
+            console.log("Now: " + ym);
+            initscal(ym);
+        });
+    });
+
+    // ===== 日曆主函數 =====
     function initscal(ym) {
+        var htmls = CreateCal(ym); // 來自 web-app.js
+        $("#tb").html(htmls);
 
-        var htmls = CreateCal(ym); /* 運用js/web-app.js中的function[InYM]*/
-        $("#tb").html(htmls) /* #將參數丟到ID:tb */
-
-        let cal = [{
-                "2025-12-03": [{
-                        "even": "aaaa"
-                    },
-                    {
-                        "even": "bbb"
-                    },
-                    {
-                        "even": "ccc"
-                    }
+        // ===== 範例事件資料（正式上線請改成從後端動態取得）=====
+        let cal = [
+            {
+                "2025-12-03": [
+                    { "even": "aaaa" },
+                    { "even": "bbb" },
+                    { "even": "ccc" }
                 ]
             },
             {
-                "2025-12-07": [{
-                        "even": "qqq"
-                    },
-                    {
-                        "even": "ww"
-                    }
+                "2025-12-07": [
+                    { "even": "qqq" },
+                    { "even": "ww" }
                 ]
             }
         ];
 
+        // 清空所有日期的事件（避免切月份時殘留舊資料）
+        $(".calendar_cell span").html("");
+
+        // 填入事件
         $.each(cal, function(index, vals) {
-            $.each(vals, function(i, v) {
-
+            $.each(vals, function(dateKey, events) {
                 var dvs = "";
-                $.each(v, function(i1, v1) {
-                    dvs += "<span>" + v1.even + "</span><br>";
-                    console.log(i1);
-                    console.log(v1);
+                $.each(events, function(i, event) {
+                    dvs += "<span>" + event.even + "</span><br>";
                 });
-                console.log(vals);
-
-                $("#m_" + i).html(dvs);
+                $("#m_" + dateKey).html(dvs);
             });
-
         });
-        //修改：將事件綁定移到 initscal 函數外部，只綁定一次：
-        $(document).ready(function() {
-                    // 下一個月
-                    $(document).on("click", "#calNext", function() {
-                        var nowym = moment(ym + "-01").add(1, 'M').format("YYYY-MM");
-                        ym = nowym
-                        console.log("N:" + ym);
-                        initscal(ym);
-                    });
-                    // 上一個月
-                    $(document).on("click", "#calLast", function() {
-                        var nowym = moment(ym + "-01").subtract(1, 'M').format("YYYY-MM");
-                        ym = nowym
-                        console.log("L:" + ym);
-                        initscal(ym);
-                    });
-                    // 當月
-                    $(document).on("click", "#calNow", function() {
-                        var nowym = moment().format("YYYY-MM"); // 獲取當前年月 (YYYY-MM)
-                        ym = nowym;
-                        console.log("Now: " + ym); // 修正 log 標記為 "Now:"
-                        initscal(ym); // 重新初始化日曆 });
-                    });
-                }
+    }
 </script>
 
 </html>
