@@ -59,40 +59,42 @@
 
     // ===== 日曆主函數 =====
     function initscal(ym) {
-        var htmls = CreateCal(ym); // 來自 web-app.js
-        $("#tb").html(htmls);
+    var htmls = CreateCal(ym);      // 生成日曆表格結構
+    $("#tb").html(htmls);
 
-        // ===== 範例事件資料（正式上線請改成從後端動態取得）=====
-        let cal = [
-            {
-                "2025-12-29": [
-                    { "even": "aaaa" },
-                    { "even": "bbb" },
-                    { "even": "ccc" }
-                ]
-            },
-            {
-                "2025-12-30": [
-                    { "even": "qqq" },
-                    { "even": "ww" }
-                ]
-            }
-        ];
+    // 先清空所有日期格子的事件內容（避免切換月份時殘留舊資料）
+    $("[id^='m_']").html("");
 
-        // 清空所有日期的事件（避免切月份時殘留舊資料）
-        $(".calendar_cell span").html("");
+    // 透過 AJAX 取得該月份的事件
+    $.ajax({
+        url: 'get_events.php',
+        type: 'GET',
+        data: { ym: ym },
+        dataType: 'json',
+        cache: false,  // 避免瀏覽器快取舊資料
+        success: function(events) {
+            // events 格式示例：
+            // {
+            //   "2025-12-03": [{"even": "公司會議"}, {"even": "生日聚會"}],
+            //   "2025-12-07": [{"even": "出差"}]
+            // }
 
-        // 填入事件
-        $.each(cal, function(index, vals) {
-            $.each(vals, function(dateKey, events) {
+            $.each(events, function(dateKey, eventList) {
                 var dvs = "";
-                $.each(events, function(i, event) {
+                $.each(eventList, function(i, event) {
                     dvs += "<span>" + event.even + "</span><br>";
                 });
+                // 填入對應的日期格子（假設您的格子 ID 格式為 m_YYYY-MM-DD）
                 $("#m_" + dateKey).html(dvs);
             });
-        });
-    }
+        },
+        error: function(xhr, status, err) {
+            console.error("載入事件失敗:", status, err);
+            // 可選：顯示友善訊息給使用者
+            // alert("無法載入事件，請稍後再試");
+        }
+    });
+}
 </script>
 
 </html>
