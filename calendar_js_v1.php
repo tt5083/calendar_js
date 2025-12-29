@@ -16,7 +16,7 @@
     <script src="js/tool.openWindow.js"></script>
     <script src="js/web-app.js"></script>
     <!-- The fav icon -->
-    <link rel="shortcut icon" href="img/favicon.ico">
+    <link rel="shortcut icon" href="img/favicon.png">
 </head>
 
 <body>
