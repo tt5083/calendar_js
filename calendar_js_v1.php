@@ -22,51 +22,51 @@
 <body>
     <div id="tb">
     </div>
-<!-- 新增事件 Modal -->
-<div class="modal fade" id="addEventModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">新增事件</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addEventForm">
-                    <input type="hidden" id="selectedDate" name="selectedDate">
+    <!-- 新增事件 Modal -->
+    <div class="modal fade" id="addEventModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">新增事件</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEventForm">
+                        <input type="hidden" id="selectedDate" name="selectedDate">
 
-                    <div class="mb-3">
-                        <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="event_title" required>
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_title" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">開始日期時間 <span class="text-danger">*</span></label>
-                        <input type="datetime-local" class="form-control" name="event_start_date" required>
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">開始日期時間 <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control" name="event_start_date" required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">結束日期時間</label>
-                        <input type="datetime-local" class="form-control" name="event_end_date">
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">結束日期時間</label>
+                            <input type="datetime-local" class="form-control" name="event_end_date">
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">地點</label>
-                        <input type="text" class="form-control" name="event_location">
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">地點</label>
+                            <input type="text" class="form-control" name="event_location">
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">備註</label>
-                        <textarea class="form-control" name="event_note" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="saveEventBtn">儲存事件</button>
+                        <div class="mb-3">
+                            <label class="form-label">備註</label>
+                            <textarea class="form-control" name="event_note" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveEventBtn">儲存事件</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 <!-- 新增事件 Modal END -->
 <!-- 事件列表視窗 Modal -->
@@ -83,177 +83,173 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="addMoreEventBtn">新增事件</button>
+                <!-- 活動總覽中的新增事件移除，以下代碼 -->
+                <!-- <button type="button" class="btn btn-primary" id="addMoreEventBtn">新增事件</button> -->
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             </div>
         </div>
     </div>
 </div>
- <!-- 事件列表視窗 Modal END -->
+<!-- 事件列表視窗 Modal END -->
 <script>
-    // 全域變數：目前顯示的年月
-    var ym = "2025-12";
+    var ym = moment().format("YYYY-MM");
+    var eventsData = {};
 
-    // 頁面載入完成後，先初始化日曆
-    $(document).ready(function() {
+    $(function() {
         initscal(ym);
 
-        // ===== 事件綁定：只寫一次，放在全域，使用事件委派 =====
-        // 下一個月
+        // --- 1. 按鈕事件 (使用靜態父元素代理，確保換月後不失效) ---
         $(document).on("click", "#calNext", function() {
-            var nowym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
-            ym = nowym;
-            console.log("Next: " + ym);
+            ym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
             initscal(ym);
         });
 
-        // 上一個月
         $(document).on("click", "#calLast", function() {
-            var nowym = moment(ym + "-01").subtract(1, 'months').format("YYYY-MM");
-            ym = nowym;
-            console.log("Last: " + ym);
+            ym = moment(ym + "-01").subtract(1, 'months').format("YYYY-MM");
             initscal(ym);
         });
 
-        // 本月（今天所屬月份）
         $(document).on("click", "#calNow", function() {
-            var nowym = moment().format("YYYY-MM");
-            ym = nowym;
-            console.log("Now: " + ym);
+            ym = moment().format("YYYY-MM");
             initscal(ym);
         });
-    });
 
-    // ===== 日曆主函數 =====
-function initscal(ym) {
-    var htmls = CreateCal(ym);
-    $("#tb").html(htmls);
+        // --- 2. 核心點擊邏輯 (修正點擊無反應) ---
+        $(document).on("click", ".calendar_cell", function(e) {
+            var date = $(this).attr("data-date"); // 使用 attr 比較保險
+            if (!date) return;
 
-    // 清空所有格子內容
-    $("[id^='m_']").html("");
-
-    $.ajax({
-        url: 'get_events.php',
-        type: 'GET',
-        data: { ym: ym },
-        dataType: 'json',
-        cache: false,
-        success: function(events) {
-    // 清空所有格子
-    $("[id^='m_']").empty();
-
-    // 填入已有事件
-    $.each(events, function(dateKey, eventList) {
-        var cellId = "#m_" + dateKey;
-
-        var eventHtml = '<div class="event-list">';
-        $.each(eventList, function(i, event) {
-            eventHtml += '<div class="event-item mb-1">';
-            eventHtml += '<span class="event-title pointer text-primary fw-500">' + event.even + '</span>';
-            eventHtml += '</div>';
+            // 判斷是否點到活動
+            if ($(e.target).hasClass("event-title") || $(e.target).parent().hasClass("event-title")) {
+                e.stopPropagation();
+                var dayEvents = eventsData[date] || [];
+                showEventList(date, dayEvents);
+            } else {
+                openAddModal(date);
+            }
         });
-        eventHtml += '</div>';
 
-        $(cellId).html(eventHtml);
+        // --- 3. 儲存邏輯 ---
+        $(document).on("click", "#saveEventBtn", function() {
+            var formData = $("#addEventForm").serialize();
+            $.ajax({
+                url: 'save_event.php',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.rs == "1") {
+                        var modalEl = document.getElementById('addEventModal');
+                        bootstrap.Modal.getInstance(modalEl).hide();
+                        showSwal("儲存成功", true, "", function() {
+                            initscal(ym);
+                        });
+                    } else {
+                        showSwal(response.msg || "儲存失敗", false);
+                    }
+                }
+            });
+        });
     });
 
-    // ===== 核心點擊邏輯：區分「點空白處」vs「點事件名稱」=====
-    $("[id^='m_']").off("click.cell").css("cursor", "pointer");
+    function initscal(InYM) {
+        $("#tb").html(CreateCal(InYM));
 
-    // 綁定整個格子的點擊（預設行為：開新增表單）
-    $("[id^='m_']").on("click.cell", function(e) {
-        // 如果點擊的是事件名稱或其子元素 → 停止冒泡，不觸發新增
-        if ($(e.target).hasClass("event-title") || $(e.target).closest(".event-title").length > 0) {
-            return; // 讓下面的事件標題專屬處理
+        $.ajax({
+            url: 'get_events.php',
+            type: 'GET',
+            data: {
+                ym: InYM
+            },
+            dataType: 'json',
+            success: function(events) {
+                eventsData = events; // 儲存到全域變數
+                $("[id^='m_']").empty();
+
+                $.each(events, function(dateKey, eventList) {
+                    var cellId = "#m_" + dateKey;
+                    var eventHtml = "";
+                    $.each(eventList, function(i, item) {
+                        // 【關鍵修正】對應 get_events.php 輸出的欄位名稱
+                        var title = item.event_title || "未命名事項";
+                        eventHtml += `<div class="event-title text-truncate" title="${title}" style="background-color: #bee5eb; color: #0c5460; padding: 2px 4px; margin-bottom: 2px; font-size: 12px; border-radius: 3px; border: 1px solid #abdde5;">${title}</div>`;
+                    });
+                    $(cellId).html(eventHtml);
+                });
+            }
+        });
+    }
+
+    function CreateCal(InYM) {
+        var startOfMonth = moment(InYM + "-01");
+        var daysInMonth = startOfMonth.daysInMonth();
+        var firstDayOfWeek = startOfMonth.day();
+
+        var htmlstr = `
+        <div class='row mb-3 align-items-center'>
+            <div class='col-4 text-start'><button id='calLast' class='btn btn-info btn-sm'>上個月</button></div>
+            <div class='col-4 text-center'><h3>${InYM}</h3></div>
+            <div class='col-4 text-end'>
+                <button id='calNow' class='btn btn-secondary btn-sm me-1'>本月</button>
+                <button id='calNext' class='btn btn-info btn-sm'>下個月</button>
+            </div>
+        </div>
+        <table class='table table-bordered' style='table-layout: fixed;'>
+            <thead><tr class='table-light'>${['日','一','二','三','四','五','六'].map(d=>`<th class='text-center'>${d}</th>`).join('')}</tr></thead>
+            <tbody><tr>`;
+
+        for (var i = 0; i < firstDayOfWeek; i++) htmlstr += "<td class='bg-light'></td>";
+
+        for (var i = 1; i <= daysInMonth; i++) {
+            var currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
+            htmlstr += `
+                <td class='calendar_cell' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer; background: #fff;'>
+                    <div class='fw-bold' style='font-size: 14px;'>${i}</div>
+                    <div id='m_${currentDate}' class='mt-1'></div>
+                </td>`;
+            if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) htmlstr += "</tr><tr>";
         }
 
-        // 其餘情況：點到格子空白處 → 開新增表單
-        var dateId = $(this).attr("id"); // m_2025-12-31
-        var date = dateId.substring(2);
+        var remainingCells = 7 - ((daysInMonth + firstDayOfWeek) % 7);
+        if (remainingCells < 7) {
+            for (var j = 0; j < remainingCells; j++) htmlstr += "<td class='bg-light'></td>";
+        }
 
-        $("#selectedDate").val(date);
-        var defaultStart = date + "T09:00";
-        $("input[name='event_start_date']").val(defaultStart);
+        htmlstr += "</tr></tbody></table>";
+        return htmlstr;
+    }
+
+    function openAddModal(date) {
         $("#addEventForm")[0].reset();
-        $("input[name='event_start_date']").val(defaultStart);
-        $("input[name='event_title']").focus();
-
+        $("#selectedDate").val(date);
+        $("input[name='event_start_date']").val(date + "T09:00");
         var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
         addModal.show();
-    });
+    }
 
-    // 專門綁定「事件名稱」的點擊 → 開事件列表
-    $(".event-title").off("click.title").on("click.title", function(e) {
-        e.stopPropagation(); // 關鍵：阻止觸發格子的點擊（新增表單）
+    function showEventList(date, eventList) {
+        // 設定 Modal 標題
+        $("#eventListDateTitle").text(moment(date).format("YYYY年MM月DD日") + " 活動總覽");
 
-        var date = $(this).closest("[id^='m_']").attr("id").substring(2);
-        showEventList(date, events[date] || []);
-    });
-}
-    });
-}
-/* 顯示「空白處」與「事件內容」 */
-function showEventList(date, eventList) {
-    $("#eventListDateTitle").text(date + " 的事件");
-    let content = eventList.length === 0 
-        ? "<p class='text-muted'>這天沒有活動</p>" 
-        : "<ul class='list-group'>" + 
-          eventList.map(e => `<li class='list-group-item'><strong>${e.even}</strong></li>`).join('') + 
-          "</ul>";
-
-    $("#eventListContent").html(content);
-    
-    // 綁定新增按鈕
-    $("#addMoreEventBtn").off("click").on("click", function() {
-        bootstrap.Modal.getInstance(document.getElementById('eventListModal')).hide();
-        openAddModal(date);
-    });
-
-    new bootstrap.Modal(document.getElementById('eventListModal')).show();
-}
-
-// 2. 獨立出開啟「新增視窗」的邏輯，減少重複代碼
-function openAddModal(date) {
-    $("#addEventForm")[0].reset();
-    $("#selectedDate").val(date);
-    $("input[name='event_start_date']").val(date + "T09:00");
-    
-    var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
-    addModal.show();
-}
-
-// 3. 實作儲存功能 (您缺少的部份)
-$(document).on("click", "#saveEventBtn", function() {
-    // 取得表單數據
-    var formData = $("#addEventForm").serialize();
-    
-    $.ajax({
-        url: 'save_event.php',
-        type: 'POST',
-        data: formData,
-        dataType: 'json',
-        success: function(response) {
-            if(response.rs == "1") {
-                // 1. 關閉視窗
-                bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
-                // 2. 使用您的 SweetAlert 工具顯示成功訊息
-                showSwal("儲存成功", true, "", function() {
-                    // 3. 重新整理日曆
-                    initscal(ym); 
-                });
-            } else {
-                showSwal(response.msg, false);
-            }
-        },
-        error: function() {
-            showFailSwal();
+        var content = "";
+        if (eventList && eventList.length > 0) {
+            content = "<div class='list-group'>";
+            eventList.forEach(function(item) {
+                // 顯示活動標題
+                content += `<div class='list-group-item list-group-item-action'>${item.event_title}</div>`;
+            });
+            content += "</div>";
+        } else {
+            content = "<p class='text-center text-muted'>目前無活動內容</p>";
         }
-    });
-});
-/* 顯示「空白處」與「事件內容」 END */
 
+        // 填入內容
+        $("#eventListContent").html(content);
 
-
+        // 顯示 Modal (移除掉原本綁定 #addMoreEventBtn 的程式碼)
+        var listModal = new bootstrap.Modal(document.getElementById('eventListModal'));
+        listModal.show();
+    }
 </script>
 
 </html>

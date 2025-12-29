@@ -53,31 +53,23 @@ $sql = "SELECT event_date, event_title
           AND event_date IS NOT NULL
         ORDER BY event_date ASC";
 
+// --- get_events.php 的最後部分 ---
 try {
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([
-        ':start' => $start_date,
-        ':end'   => $end_date
-    ]);
+    $stmt->execute([':start' => $start_date, ':end' => $end_date]);
+    $rows = $stmt->fetchAll();
 
-    $events = [];
-    while ($row = $stmt->fetch()) {
+    // 【核心修正】將資料整理成以日期為 Key 的格式
+    $eventsByDate = [];
+    foreach ($rows as $row) {
         $date = $row['event_date'];
-        $title = htmlspecialchars($row['event_title'], ENT_QUOTES, 'UTF-8');
-
-        if (!isset($events[$date])) {
-            $events[$date] = [];
+        if (!isset($eventsByDate[$date])) {
+            $eventsByDate[$date] = [];
         }
-        $events[$date][] = ['even' => $title];
+        $eventsByDate[$date][] = $row;
     }
 
-    echo json_encode($events, JSON_UNESCAPED_UNICODE);
+    echo json_encode($eventsByDate); // 輸出 {"2025-12-29": [...], "2025-12-30": [...]}
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => '查詢失敗',
-        'details' => $e->getMessage()
-    ]);
-    exit;
+    echo json_encode(['error' => $e->getMessage()]);
 }
-?>

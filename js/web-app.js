@@ -671,59 +671,56 @@ function padRight(str, lenght) {
 //------------------------------系統-日曆(大)-S------------------------------
 //建立
 function CreateCal(InYM) {
-    var i = 0;
-    //初始化當月第一天
-    var MFday = moment(InYM + "-01");
-    //取出當月天數
-    var lastday = moment(InYM, "YYYY-MM").daysInMonth();
-    //初始化當月最後一天
-    var MLday = moment(InYM + "-" + lastday);
-    //第一天是星期幾(日為起始)
-    var MFdayWeek = MFday.day();
-    //最後一天是星期幾(日為起始)
-    var MLdayWeek = MLday.day();
-    //空白的日期
-    var emptyString = "<td class='calendar_cell'> </td>";
-    //建立表格
-    var htmlstr = "";
-    htmlstr += "<div class='row'><div class='col text-center'><button type='button' id='calLast' class='btn btn-info'>上個月</button></div><div class='col-8 text-center'><sapn id='calhead'>" + InYM + "</sapn>月</div><div class='col text-center'><button type='button' id='calNow' class='btn btn-light'>本月</button></div><div class='col text-center'><button type='button' id='calNext' class='btn btn-info'>下個月</button></div></div>";
-    htmlstr += "<table class='table table-bordered table-striped table-hover mt-1'>";
-    htmlstr += "<thead>";
-    htmlstr +=
-        "<tr><th class='text-center'>星期日</th><th class='text-center'>星期一</th><th class='text-center'>星期二</th><th class='text-center'>星期三</th><th class='text-center'>星期四</th><th class='text-center'>星期五</th><th class='text-center'>星期六</th></tr></thead>";
-    //當月之前空格
-    if (MFdayWeek > 0) {
-        htmlstr += "<tr class='calendar_body'>";
-        for (i = 0; i < MFdayWeek; i++) {
-            htmlstr += emptyString;
-        }
+    const startOfMonth = moment(InYM + "-01"); //
+    const daysInMonth = startOfMonth.daysInMonth(); //
+    const firstDayOfWeek = startOfMonth.day(); // 0 (日) 到 6 (六)
+
+    let htmlstr = `
+        <div class='row'>
+            <div class='col text-center'><button type='button' id='calLast' class='btn btn-info'>上個月</button></div>
+            <div class='col-8 text-center'><span>${InYM}</span></div>
+            <div class='col text-center'><button type='button' id='calNow' class='btn btn-light'>本月</button></div>
+            <div class='col text-center'><button type='button' id='calNext' class='btn btn-info'>下個月</button></div>
+        </div>
+        <table class='table table-bordered table-striped table-hover mt-1'>
+            <thead>
+                <tr>
+                    ${['日', '一', '二', '三', '四', '五', '六'].map(d => `<th class='text-center'>星期${d}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody><tr class='calendar_body'>`;
+
+    // 1. 填補月初空白
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
+        htmlstr += `
+    <td class='calendar_cell' data-date='${currentDate}' style='cursor:pointer;'>
+        <div class='date-num'>${i}</div>
+        <div id='m_${currentDate}' class='event-container'></div>
+    </td>`;
     }
-    //當月
-    for (i = 1; i <= lastday; i++) {
-        var day = padLeft(i, 2); //按01 02 输出
-        var clday = InYM + "-" + day;
-        htmlstr += "<td class='calendar_cell text-center'>" + day;
-        htmlstr += "<br><span id='m_" + clday + "'>";
-        htmlstr += "</td>";
-        //每周切換
-        if ((i + MFdayWeek) % 7 == 0) {
+
+    // 2. 填寫日期
+    for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD"); // 自動處理 padLeft
+        const displayDay = moment(currentDate).format("DD");
+
+        htmlstr += `
+            <td class='calendar_cell' data-date='${currentDate}' style='cursor:pointer;'>
+        <div class='date-num'>${i}</div>
+        <div id='m_${currentDate}' class='event-container'></div>
+    </td>`;
+
+        // 每周換行
+        if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) {
             htmlstr += "</tr><tr class='calendar_body'>";
         }
     }
-    //下一個月
-    if (MLdayWeek > 0) {
-        for (i = 0; i < 6 - MLdayWeek; i++) {
-            htmlstr += emptyString;
-        }
-    }
 
-    htmlstr += "</tr>";
-    htmlstr += "</table>";
-    //回傳結果
+    htmlstr += "</tr></tbody></table>";
     return htmlstr;
 }
-//------------------------------系統-日曆(大)-E------------------------------
-
+//------------------------------系統-日曆(大)-End------------------------------
 // 彈窗顯示
 function showSwal(titleTxt, success, text = null, callback = null) {
     let ic = 'success';
