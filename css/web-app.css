@@ -103,8 +103,42 @@ select {
     z-index: 1000;
 }
 
+/* 點擊日期跳出視窗CSS美化 */
 .action-bar-fixed .btn {
     font-size: 18px;
     padding: 10px 30px;
+}
+
+.cell-content {
+    position: relative;
+    height: 100%;
+    min-height: 80px;
+}
+
+.event-list {
+    pointer-events: auto;
+}
+
+.event-item {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.event-title {
+    display: block;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background-color: #e3f2fd;
+    margin-bottom: 3px;
+}
+
+.cell-blank {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1;
+}
+
+ [id^='m_'] {
+    position: relative;
 }
 
