@@ -17,6 +17,7 @@
     <script src="js/web-app.js"></script>
     <!-- The fav icon -->
     <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
@@ -150,6 +151,40 @@
                 }
             });
         });
+        // 點擊刪除按鈕
+        $(document).on("click", ".delete-event-btn", function() {
+            var eventId = $(this).data("id");
+
+            // 使用瀏覽器確認視窗
+            if (confirm("您確定要刪除這筆活動嗎？刪除後無法還原。")) {
+                $.ajax({
+                    url: 'delete_event.php',
+                    type: 'POST',
+                    data: {
+                        event_id: eventId
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.rs == "1") {
+                            // 1. 隱藏目前的總覽視窗
+                            var modalEl = document.getElementById('eventListModal');
+                            bootstrap.Modal.getInstance(modalEl).hide();
+
+                            // 2. 顯示成功通知
+                            showSwal("刪除成功", true, "", function() {
+                                // 3. 重新整理日曆資料與畫面
+                                initscal(ym);
+                            });
+                        } else {
+                            showSwal(response.msg || "刪除失敗", false);
+                        }
+                    },
+                    error: function() {
+                        showSwal("連線發生錯誤", false);
+                    }
+                });
+            }
+        });
     });
 
     function initscal(InYM) {
@@ -181,6 +216,7 @@
     }
 
     function CreateCal(InYM) {
+        // ... 前方的變數定義 ...
         var startOfMonth = moment(InYM + "-01");
         var daysInMonth = startOfMonth.daysInMonth();
         var firstDayOfWeek = startOfMonth.day();
@@ -197,8 +233,9 @@
         <table class='table table-bordered' style='table-layout: fixed;'>
             <thead><tr class='table-light'>${['日','一','二','三','四','五','六'].map(d=>`<th class='text-center'>${d}</th>`).join('')}</tr></thead>
             <tbody><tr>`;
-
         for (var i = 0; i < firstDayOfWeek; i++) htmlstr += "<td class='bg-light'></td>";
+
+        // ... 前方的表格頭部 HTML ...
 
         for (var i = 1; i <= daysInMonth; i++) {
             var currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
@@ -228,25 +265,28 @@
     }
 
     function showEventList(date, eventList) {
-        // 設定 Modal 標題
         $("#eventListDateTitle").text(moment(date).format("YYYY年MM月DD日") + " 活動總覽");
 
         var content = "";
         if (eventList && eventList.length > 0) {
-            content = "<div class='list-group'>";
+            content = "<div class='list-group shadow-sm'>";
             eventList.forEach(function(item) {
-                // 顯示活動標題
-                content += `<div class='list-group-item list-group-item-action'>${item.event_title}</div>`;
+                content += `
+                <div class='list-group-item d-flex justify-content-between align-items-center' style='border-left: 5px solid #17a2b8;'>
+                    <span class='fw-bold'>${item.event_title}</span>
+                    <button class='btn btn-outline-danger btn-sm delete-event-btn' 
+                            data-id='${item.event_id}' 
+                            title='刪除這筆活動'>
+                        <i class='fa-regular fa-trash-can'></i> 刪除
+                    </button>
+                </div>`;
             });
             content += "</div>";
         } else {
-            content = "<p class='text-center text-muted'>目前無活動內容</p>";
+            content = "<p class='text-center text-muted p-4'>目前無活動內容</p>";
         }
 
-        // 填入內容
         $("#eventListContent").html(content);
-
-        // 顯示 Modal (移除掉原本綁定 #addMoreEventBtn 的程式碼)
         var listModal = new bootstrap.Modal(document.getElementById('eventListModal'));
         listModal.show();
     }
