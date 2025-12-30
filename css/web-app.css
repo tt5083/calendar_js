@@ -167,3 +167,11 @@ body, input, button, textarea, select {
     text-decoration: underline;
     color: #0056b3 !important;
 }
+
+/* test */
+/* 讓輸入框點擊感更直覺 */
+input[type="datetime-local"], 
+input.datetimepicker {
+    cursor: pointer;
+}
+

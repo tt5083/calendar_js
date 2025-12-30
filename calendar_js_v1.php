@@ -46,12 +46,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">開始日期時間 <span class="text-danger">*</span></label>
-                            <input type="datetime-local" class="form-control" name="event_start_date" required>
+                            <input type="datetime-local" class="form-control" onclick="this.showPicker()" name="event_start_date" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">結束日期時間</label>
-                            <input type="datetime-local" class="form-control" name="event_end_date">
+                            <input type="datetime-local" class="form-control" onclick="this.showPicker()" name="event_end_date">
                         </div>
 
                         <div class="mb-3">
@@ -290,7 +290,8 @@
         $("#addEventForm")[0].reset(); // 重置所有輸入
         $("#event_id_input").val(""); // 【重要】確保 ID 被清空，後端才會判斷為新增
         $("#selectedDate").val(date);
-        $("input[name='event_start_date']").val(date + "T09:00");
+        $("input[name='event_start_date']").val(date + "T08:00");
+        $("input[name='event_end_date']").val(date + "T17:00");
         var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
         addModal.show();
     }
