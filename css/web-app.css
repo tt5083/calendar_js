@@ -151,3 +151,7 @@ body, input, button, textarea, select {
     color: #3c4043; /* 深灰色字體，比較不刺眼 */
     font-size: 1.5rem;
 }
+.edit-event-trigger:hover .fw-bold {
+    text-decoration: underline;
+    color: #0056b3 !important;
+}

@@ -74,3 +74,24 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['rs' => '0', 'msg' => 'SQL錯誤：' . $e->getMessage()]);
 }
+// save_event.php 核心邏輯修正
+$event_id = $_POST['event_id'] ?? ''; // 取得是否有 ID
+
+if (!empty($event_id)) {
+    // 執行更新
+    $sql = "UPDATE calendar_events SET 
+            event_publisher = :publisher,
+            event_location = :location,
+            event_start_date = :start_date,
+            event_end_date = :end_date,
+            event_lector = :lector,
+            event_organizer = :organizer,
+            event_implementer = :implementer,
+            event_title = :title,
+            event_note = :note,
+            event_date = :event_date
+            WHERE event_id = :event_id";
+} else {
+    // 執行新增 (原本的 SQL)
+    $sql = "INSERT INTO calendar_events (...) VALUES (...)";
+}
