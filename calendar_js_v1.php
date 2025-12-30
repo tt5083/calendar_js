@@ -33,8 +33,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="addEventForm">
-                        <input type="hidden" id="selectedDate" name="selectedDate">
-
+                        <input type="hidden" id="event_id_input" name="event_id">
                         <div class="mb-3">
                             <label class="form-label">發佈人姓名 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="event_publisher" required>
@@ -91,88 +90,55 @@
 </body>
 <!-- 新增事件 Modal END -->
 <!-- 事件列表視窗 Modal -->
-<div class="modal fade" id="eventListModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="viewEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="eventListDateTitle">2025-12-29 的事件</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> 活動詳情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div id="eventListContent">
-                    <!-- 動態填入事件列表 -->
+            <div class="modal-body" id="viewEventContent">
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-danger" id="btnDeleteInView">
+                        <i class="fa-regular fa-trash-can"></i> 刪除
+                    </button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <!-- 活動總覽中的新增事件移除，以下代碼 -->
-                <!-- <button type="button" class="btn btn-primary" id="addMoreEventBtn">新增事件</button> -->
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <div>
+                    <button type="button" class="btn btn-primary" id="btnEditInView">
+                        <i class="fa-regular fa-pen-to-square"></i> 編輯
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <!-- 事件列表視窗 Modal END -->
 <script>
-    /**
-     * 產生單個日曆格子的 HTML
-     * @param {string} date 日期字串 YYYY-MM-DD
-     * @param {number|string} dayNum 顯示的數字
-     * @param {boolean} isMainMonth 是否為當月日期
-     */
-    function renderCell(date, dayNum, isMainMonth) {
-        if (!isMainMonth) {
-            return `<td class="cell-empty"></td>`;
-        }
-
-        const todayStr = moment().format("YYYY-MM-DD");
-        const isToday = (date === todayStr);
-        const dateDisplay = isToday ? `<span class="today-circle">${dayNum}</span>` : `<span>${dayNum}</span>`;
-        const isTodayClass = isToday ? "today-highlight" : "";
-
-        return `
-        <td class="calendar_cell ${isTodayClass}" data-date="${date}">
-            <div class="fw-bold date-label" style="font-size: 14px;">${dateDisplay}</div>
-            <div id="m_${date}" class="mt-1 event-container"></div>
-        </td>`;
-    }
     var ym = moment().format("YYYY-MM");
-    var eventsData = {};
+    var eventsData = {}; // 儲存後端抓回來的原始資料
+    let currentViewEvent = null; // 全域變數：儲存目前正在檢視的單筆事件
 
     $(function() {
         initscal(ym);
 
-        // --- 1. 按鈕事件 (使用靜態父元素代理，確保換月後不失效) ---
+        // --- 1. 月份切換按鈕 ---
         $(document).on("click", "#calNext", function() {
             ym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
             initscal(ym);
         });
-
         $(document).on("click", "#calLast", function() {
             ym = moment(ym + "-01").subtract(1, 'months').format("YYYY-MM");
             initscal(ym);
         });
-
         $(document).on("click", "#calNow", function() {
             ym = moment().format("YYYY-MM");
             initscal(ym);
         });
 
-        // --- 2. 核心點擊邏輯 
-        $(document).on("click", ".calendar_cell", function(e) {
-            var date = $(this).attr("data-date"); // 使用 attr 比較保險
-            if (!date) return;
-
-            // 判斷是否點到活動
-            if ($(e.target).hasClass("event-title") || $(e.target).parent().hasClass("event-title")) {
-                e.stopPropagation();
-                var dayEvents = eventsData[date] || [];
-                showEventList(date, dayEvents);
-            } else {
-                openAddModal(date);
-            }
-        });
-
-        // --- 3. 儲存邏輯 ---
+        // --- 2. 儲存與更新邏輯 ---
         $(document).on("click", "#saveEventBtn", function() {
             var formData = $("#addEventForm").serialize();
             $.ajax({
@@ -182,17 +148,14 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.rs == "1") {
-                        // 1. 取得 Modal 元素
+                        // 修正：使用正確的方式關閉 Modal
                         var modalEl = document.getElementById('addEventModal');
+                        var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) modalInstance.hide();
 
-                        // --- 修正 ARIA 錯誤點 ---
-                        if (document.activeElement) {
-                            document.activeElement.blur();
-                        }
-                        // -----------------------
-
-                        // 3. 隱藏 Modal
-                        bootstrap.Modal.getInstance(modalEl).hide();
+                        // 強制移除可能殘留的灰色遮罩
+                        $('.modal-backdrop').remove();
+                        $('body').css('overflow', 'auto');
 
                         showSwal("儲存成功", true, "", function() {
                             initscal(ym);
@@ -203,45 +166,71 @@
                 }
             });
         });
-        // 點擊刪除按鈕
-        $(document).on("click", ".delete-event-btn", function() {
-            var eventId = $(this).data("id");
 
-            // 使用瀏覽器確認視窗
-            if (confirm("您確定要刪除這筆活動嗎？刪除後無法還原。")) {
+        // --- 3. 刪除邏輯 ---
+        $(document).on("click", "#btnDeleteInView", function() {
+            if (!currentViewEvent) return;
+            if (confirm("您確定要刪除「" + currentViewEvent.event_title + "」嗎？")) {
                 $.ajax({
                     url: 'delete_event.php',
                     type: 'POST',
                     data: {
-                        event_id: eventId
+                        event_id: currentViewEvent.event_id
                     },
                     dataType: 'json',
                     success: function(response) {
                         if (response.rs == "1") {
-                            // 1. 隱藏目前的總覽視窗
-                            var modalEl = document.getElementById('eventListModal');
-                            bootstrap.Modal.getInstance(modalEl).hide();
+                            var modalEl = document.getElementById('viewEventModal');
+                            var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                            if (modalInstance) modalInstance.hide();
+                            $('.modal-backdrop').remove();
 
-                            // 2. 顯示成功通知
                             showSwal("刪除成功", true, "", function() {
-                                // 3. 重新整理日曆資料與畫面
                                 initscal(ym);
                             });
-                        } else {
-                            showSwal(response.msg || "刪除失敗", false);
                         }
-                    },
-                    error: function() {
-                        showSwal("連線發生錯誤", false);
                     }
                 });
             }
         });
+
+        // --- 4. 編輯按鈕邏輯 (從檢視視窗跳到編輯視窗) ---
+        $(document).on("click", "#btnEditInView", function() {
+            if (!currentViewEvent) return;
+
+            // 關閉檢視視窗
+            var vModalEl = document.getElementById('viewEventModal');
+            bootstrap.Modal.getInstance(vModalEl).hide();
+
+            // 設定編輯模式標題
+            $("#addEventModal .modal-title").text("編輯事件");
+            $("#addEventForm")[0].reset();
+
+            // 【重要】填入 event_id，後端才會判斷為更新
+            $("#event_id_input").val(currentViewEvent.event_id);
+
+            // 填入資料
+            const d = currentViewEvent;
+            $("#event_id_input").val(d.event_id);
+            $("input[name='event_publisher']").val(d.event_publisher);
+            $("input[name='event_title']").val(d.event_title);
+            $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T"));
+            $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T") : "");
+            $("input[name='event_location']").val(d.event_location);
+            $("input[name='event_lector']").val(d.event_lector);
+            $("input[name='event_organizer']").val(d.event_organizer);
+            $("input[name='event_implementer']").val(d.event_implementer);
+            $("textarea[name='event_note']").val(d.event_note);
+
+            // 開啟新增/編輯視窗
+            var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
+            addModal.show();
+        });
     });
 
+    // --- 核心函數：初始化日曆 ---
     function initscal(InYM) {
         $("#tb").html(CreateCal(InYM));
-
         $.ajax({
             url: 'get_events.php',
             type: 'GET',
@@ -250,16 +239,18 @@
             },
             dataType: 'json',
             success: function(events) {
-                eventsData = events; // 儲存到全域變數
-                $("[id^='m_']").empty();
-
+                eventsData = events; // 存入全域供點擊時查詢
+                // 重新渲染格子內的事件內容
                 $.each(events, function(dateKey, eventList) {
                     var cellId = "#m_" + dateKey;
                     var eventHtml = "";
                     $.each(eventList, function(i, item) {
-                        // 【關鍵修正】對應 get_events.php 輸出的欄位名稱
-                        var title = item.event_title || "未命名事項";
-                        eventHtml += `<div class="event-title text-truncate" title="${title}" style="background-color: #bee5eb; color: #0c5460; padding: 2px 4px; margin-bottom: 2px; font-size: 12px; border-radius: 3px; border: 1px solid #abdde5;">${title}</div>`;
+                        eventHtml += `
+                            <div class='event-title text-truncate' 
+                                 onclick='event.stopPropagation(); viewEventDetail("${dateKey}", ${i})'
+                                 title='${item.event_title}'>
+                                ${item.event_title}
+                            </div>`;
                     });
                     $(cellId).html(eventHtml);
                 });
@@ -267,96 +258,74 @@
         });
     }
 
-    function CreateCal(InYM) {
-        // ... 前方的變數定義 ...
-        const startOfMonth = moment(InYM + "-01");
-        const daysInMonth = startOfMonth.daysInMonth();
-        const firstDayOfWeek = startOfMonth.day();
-
-        let htmlstr = `
-        <div class='d-flex align-items-center justify-content-center mb-4'>
-        <button id='calLast' class='btn btn-outline-info btn-sm me-3'>
-            <i class="fa-solid fa-chevron-left"></i> 上個月
-        </button>
-
-        <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;'>${InYM}</h3>
-
-        <div class='ms-3 d-flex align-items-center'>
-            <button id='calNext' class='btn btn-outline-info btn-sm me-4'>
-                下個月 <i class="fa-solid fa-chevron-right"></i>
-            </button>
-            <button id='calNow' class='btn btn-secondary btn-sm'>
-                <i class="fa-solid fa-calendar-day"></i> 本月
-            </button>
-        </div>
-    </div>
-
-    <table class='table'>
-        `;
-
-        // 1. 起始空白格
-        for (let i = 0; i < firstDayOfWeek; i++) {
-            htmlstr += renderCell('', '', false);
+    // --- 核心函數：顯示單一事件詳情 ---
+    function viewEventDetail(date, index) {
+        if (!eventsData[date] || !eventsData[date][index]) {
+            alert("找不到該事項資料");
+            return;
         }
+        const eventData = eventsData[date][index];
+        currentViewEvent = eventData; // 存入全域，供編輯/刪除按鈕讀取
 
-        // 2. 有日期的格子
-        for (let i = 1; i <= daysInMonth; i++) {
-            const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
-            htmlstr += renderCell(currentDate, i, true);
+        let html = `
+            <table class="table table-sm table-bordered">
+                <tr><th class="bg-light" width="30%">活動名稱</th><td><b class="text-primary">${eventData.event_title}</b></td></tr>
+                <tr><th class="bg-light">發佈人</th><td>${eventData.event_publisher}</td></tr>
+                <tr><th class="bg-light">地點</th><td>${eventData.event_location || '未填寫'}</td></tr>
+                <tr><th class="bg-light">時間</th><td>${eventData.event_start_date} <br>至 ${eventData.event_end_date || '-'}</td></tr>
+                <tr><th class="bg-light">講師</th><td>${eventData.event_lector || '-'}</td></tr>
+                <tr><th class="bg-light">承辦單位</th><td>${eventData.event_organizer || '-'}</td></tr>
+                <tr><th class="bg-light">承辦人</th><td>${eventData.event_implementer || '-'}</td></tr>
+                <tr><th class="bg-light">備註</th><td>${eventData.event_note || '無'}</td></tr>
+            </table>`;
 
-            // 換行邏輯
-            if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) {
-                htmlstr += "</tr><tr>";
-            }
-        }
-
-        // 3. 結束空白格
-        const totalCellsSoFar = firstDayOfWeek + daysInMonth;
-        const remainingCells = (7 - (totalCellsSoFar % 7)) % 7;
-        if (remainingCells > 0) {
-            for (let j = 0; j < remainingCells; j++) {
-                // 使用 cell-empty 確保背景色與邊框與 CSS 同步
-                htmlstr += `<td class="cell-empty"></td>`;
-            }
-        }
-
-        htmlstr += "</tr></tbody></table>"; // 關閉標籤
-        return htmlstr;
+        $("#viewEventContent").html(html);
+        var myModal = new bootstrap.Modal(document.getElementById('viewEventModal'));
+        myModal.show();
     }
 
+    // --- 核心函數：開啟新增視窗 ---
     function openAddModal(date) {
-        $("#addEventForm")[0].reset();
+        $("#addEventModal .modal-title").text("新增事件");
+        $("#addEventForm")[0].reset(); // 重置所有輸入
+        $("#event_id_input").val(""); // 【重要】確保 ID 被清空，後端才會判斷為新增
         $("#selectedDate").val(date);
         $("input[name='event_start_date']").val(date + "T09:00");
         var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
         addModal.show();
     }
 
-    function showEventList(date, eventList) {
-        $("#eventListDateTitle").text(moment(date).format("YYYY年MM月DD日") + " 活動總覽");
+    // --- 輔助函數：建立日曆結構 (與您原本的 logic 相同) ---
+    function CreateCal(InYM) {
+        const startOfMonth = moment(InYM + "-01");
+        const daysInMonth = startOfMonth.daysInMonth();
+        const firstDayOfWeek = startOfMonth.day();
+        let htmlstr = `<div class='d-flex align-items-center justify-content-center mb-4'>
+            <button id='calLast' class='btn btn-outline-info btn-sm me-3'><i class="fa-solid fa-chevron-left"></i> 上個月</button>
+            <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;'>${InYM}</h3>
+            <button id='calNext' class='btn btn-outline-info btn-sm ms-3'>下個月 <i class="fa-solid fa-chevron-right"></i></button>
+            <button id='calNow' class='btn btn-secondary btn-sm ms-3'>本月</button>
+        </div><table class='table'><thead><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody><tr>`;
 
-        var content = "";
-        if (eventList && eventList.length > 0) {
-            content = "<div class='list-group shadow-sm'>";
-            eventList.forEach(function(item) {
-                content += `
-                <div class='list-group-item d-flex justify-content-between align-items-center' style='border-left: 5px solid #17a2b8;'>
-                    <span class='fw-bold'>${item.event_title}</span>
-                    <button class='btn btn-outline-danger btn-sm delete-event-btn' 
-                            data-id='${item.event_id}' 
-                            title='刪除這筆活動'>
-                        <i class='fa-regular fa-trash-can'></i> 刪除
-                    </button>
-                </div>`;
-            });
-            content += "</div>";
-        } else {
-            content = "<p class='text-center text-muted p-4'>目前無活動內容</p>";
+        for (let i = 0; i < firstDayOfWeek; i++) htmlstr += renderCell('', '', false);
+        for (let i = 1; i <= daysInMonth; i++) {
+            const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
+            htmlstr += renderCell(currentDate, i, true);
+            if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) htmlstr += "</tr><tr>";
         }
+        htmlstr += "</tr></tbody></table>";
+        return htmlstr;
+    }
 
-        $("#eventListContent").html(content);
-        var listModal = new bootstrap.Modal(document.getElementById('eventListModal'));
-        listModal.show();
+    function renderCell(date, dayNum, isMainMonth) {
+        if (!isMainMonth) return `<td class="cell-empty"></td>`;
+        const todayStr = moment().format("YYYY-MM-DD");
+        const isToday = (date === todayStr);
+        return `
+        <td class="calendar_cell ${isToday ? 'today-highlight' : ''}" data-date="${date}" onclick="openAddModal('${date}')">
+            <div class="fw-bold date-label">${isToday ? `<span class="today-circle">${dayNum}</span>` : dayNum}</div>
+            <div id="m_${date}" class="mt-1 event-container"></div>
+        </td>`;
     }
 </script>
 

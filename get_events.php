@@ -47,8 +47,7 @@ $start_date = "$ym-01";
 $end_date   = date('Y-m-t', strtotime($start_date));
 
 // 使用 event_date 欄位查詢（您新增的）
-$sql = "SELECT event_id, event_date, event_title 
-        FROM calendar_events 
+$sql = "SELECT * FROM calendar_events 
         WHERE event_date BETWEEN :start AND :end 
           AND event_date IS NOT NULL
         ORDER BY event_date ASC";
