@@ -220,6 +220,7 @@
         var startOfMonth = moment(InYM + "-01");
         var daysInMonth = startOfMonth.daysInMonth();
         var firstDayOfWeek = startOfMonth.day();
+        var todayStr = moment().format("YYYY-MM-DD"); // 取得今天的日期字串
 
         var htmlstr = `
         <div class='row mb-3 align-items-center'>
@@ -239,8 +240,11 @@
 
         for (var i = 1; i <= daysInMonth; i++) {
             var currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
+            月
+            // 【關鍵點】：比對目前產生的日期是否等於今天
+            var isTodayClass = (currentDate === todayStr) ? "today-highlight .fw-bold" : "";
             htmlstr += `
-                <td class='calendar_cell' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer; background: #fff;'>
+                <td class='calendar_cell ${isTodayClass}' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer; background: #fff;'>
                     <div class='fw-bold' style='font-size: 14px;'>${i}</div>
                     <div id='m_${currentDate}' class='mt-1'></div>
                 </td>`;
