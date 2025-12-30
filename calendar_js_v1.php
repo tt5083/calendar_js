@@ -121,17 +121,12 @@
      */
     function renderCell(date, dayNum, isMainMonth) {
         if (!isMainMonth) {
-            return `<td class="cell-empty" style="height:110px;"></td>`;
+            return `<td class="cell-empty"></td>`;
         }
 
         const todayStr = moment().format("YYYY-MM-DD");
         const isToday = (date === todayStr);
-
-        // 決定數字顯示 (今天有圓圈)
-        const dateDisplay = isToday ?
-            `<span class="today-circle">${dayNum}</span>` :
-            `<span>${dayNum}</span>`;
-
+        const dateDisplay = isToday ? `<span class="today-circle">${dayNum}</span>` : `<span>${dayNum}</span>`;
         const isTodayClass = isToday ? "today-highlight" : "";
 
         return `
@@ -190,10 +185,11 @@
                         // 1. 取得 Modal 元素
                         var modalEl = document.getElementById('addEventModal');
 
-                        // 2. 修正 ARIA 錯誤：讓按鈕失去焦點
+                        // --- 修正 ARIA 錯誤點 ---
                         if (document.activeElement) {
                             document.activeElement.blur();
                         }
+                        // -----------------------
 
                         // 3. 隱藏 Modal
                         bootstrap.Modal.getInstance(modalEl).hide();
@@ -317,11 +313,14 @@
         // 3. 結束空白格
         const totalCellsSoFar = firstDayOfWeek + daysInMonth;
         const remainingCells = (7 - (totalCellsSoFar % 7)) % 7;
-        for (let j = 0; j < remainingCells; j++) {
-            htmlstr += renderCell('', '', false);
+        if (remainingCells > 0) {
+            for (let j = 0; j < remainingCells; j++) {
+                // 使用 cell-empty 確保背景色與邊框與 CSS 同步
+                htmlstr += `<td class="cell-empty"></td>`;
+            }
         }
 
-        htmlstr += "</tr></tbody></table>";
+        htmlstr += "</tr></tbody></table>"; // 關閉標籤
         return htmlstr;
     }
 
