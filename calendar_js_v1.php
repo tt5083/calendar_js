@@ -36,8 +36,13 @@
                         <input type="hidden" id="selectedDate" name="selectedDate">
 
                         <div class="mb-3">
-                            <label class="form-label">活動名稱 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_title" required>
+                            <label class="form-label">發佈人姓名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_publisher" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">地點</label>
+                            <input type="text" class="form-control" name="event_location">
                         </div>
 
                         <div class="mb-3">
@@ -51,8 +56,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">地點</label>
-                            <input type="text" class="form-control" name="event_location">
+                            <label class="form-label">講師 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_lector" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">承辦單位 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_organizer" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">承辦人 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_implementer" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">主題 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="event_title" required>
                         </div>
 
                         <div class="mb-3">
@@ -142,7 +162,7 @@
             initscal(ym);
         });
 
-        // --- 2. 核心點擊邏輯 (修正點擊無反應) ---
+        // --- 2. 核心點擊邏輯 
         $(document).on("click", ".calendar_cell", function(e) {
             var date = $(this).attr("data-date"); // 使用 attr 比較保險
             if (!date) return;
@@ -167,8 +187,17 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.rs == "1") {
+                        // 1. 取得 Modal 元素
                         var modalEl = document.getElementById('addEventModal');
+
+                        // 2. 修正 ARIA 錯誤：讓按鈕失去焦點
+                        if (document.activeElement) {
+                            document.activeElement.blur();
+                        }
+
+                        // 3. 隱藏 Modal
                         bootstrap.Modal.getInstance(modalEl).hide();
+
                         showSwal("儲存成功", true, "", function() {
                             initscal(ym);
                         });

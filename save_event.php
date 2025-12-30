@@ -2,80 +2,68 @@
 // save_event.php
 header('Content-Type: application/json; charset=utf-8');
 
-// 開發階段建議開啟錯誤顯示，正式環境請設為 0
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// 1. 資料庫設定
 $host = 'localhost';
 $dbname = 'stcalendar';
 $username = 'root';
 $password = '';
 
 try {
-    $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]
-    );
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
 } catch (PDOException $e) {
-    echo json_encode(['rs' => '0', 'msg' => '資料庫連線失敗: ' . $e->getMessage()]);
+    echo json_encode(['rs' => '0', 'msg' => '資料庫連線失敗']);
     exit;
 }
 
-// 2. 接收並整理 POST 資料
-// 注意：這裡的欄位名稱需與您的 HTML form name 屬性對應
-$event_title      = $_POST['event_title'] ?? '';
-$event_start_date = $_POST['event_start_date'] ?? null;
-$event_end_date   = $_POST['event_end_date'] ?? null;
-$event_location   = $_POST['event_location'] ?? '';
-$event_note       = $_POST['event_note'] ?? '';
+// 1. 接收前端 POST 資料
+$publisher   = $_POST['event_publisher'] ?? '';
+$location    = $_POST['event_location'] ?? '';
+$start_date  = $_POST['event_start_date'] ?? '';
+$end_date    = $_POST['event_end_date'] ?? '';
+$lector      = $_POST['event_lector'] ?? '';
+$organizer   = $_POST['event_organizer'] ?? '';
+$implementer = $_POST['event_implementer'] ?? '';
+$title       = $_POST['event_title'] ?? '';
+$note        = $_POST['event_note'] ?? '';
 
-// 特別處理：您 SQL 結構中有一個 event_date (date 格式)，
-// 通常用於日曆檢索，我們從 event_start_date 擷取日期部分存入
+// 2. 自動處理 event_date (從開始時間擷取日期部分)
 $event_date = null;
-if ($event_start_date) {
-    $event_date = date('Y-m-d', strtotime($event_start_date));
+if (!empty($start_date)) {
+    $event_date = date('Y-m-d', strtotime($start_date));
 }
 
-// 3. 基本檢查
-if (empty($event_title) || empty($event_start_date)) {
-    echo json_encode(['rs' => '0', 'msg' => '活動名稱與開始時間為必填']);
+// 3. 必填檢查 (修正原本會報錯的判斷式)
+if (empty($title) || empty($start_date)) {
+    echo json_encode(['rs' => '0', 'msg' => '活動名稱與開始時間為必填項']);
     exit;
 }
 
-// 4. 執行新增 (INSERT)
-// 根據您的 .sql 結構，部分欄位設為 NOT NULL，需給予預設或空值
+// 4. 執行新增 SQL
 $sql = "INSERT INTO calendar_events (
-            event_publisher, event_title, event_start_date, 
-            event_end_date, event_date, event_location, 
-            event_note, event_category, event_organizer, 
-            event_implementer, event_lector
-        ) VALUES (
-            :publisher, :title, :start_date, 
-            :end_date, :event_date, :location, 
-            :note, :category, :organizer, 
-            :implementer, :lector
-        )";
+    event_publisher, event_location, event_start_date, event_end_date, 
+    event_lector, event_organizer, event_implementer, event_title, 
+    event_note, event_category, event_date
+) VALUES (
+    :publisher, :location, :start_date, :end_date, 
+    :lector, :organizer, :implementer, :title, 
+    :note, :category, :event_date
+)";
 
 try {
     $stmt = $pdo->prepare($sql);
     $result = $stmt->execute([
-        ':publisher'   => 'System User', // 暫時寫死或從 Session 取得
-        ':title'       => $event_title,
-        ':start_date'  => $event_start_date,
-        ':end_date'    => $event_end_date,
-        ':event_date'  => $event_date,
-        ':location'    => $event_location,
-        ':note'        => $event_note,
-        ':category'    => '一般',       // 預設分類
-        ':organizer'   => '',
-        ':implementer' => '',
-        ':lector'      => ''
+        ':publisher'   => $publisher,
+        ':location'    => $location,
+        ':start_date'  => $start_date,
+        ':end_date'    => $end_date,
+        ':lector'      => $lector,
+        ':organizer'   => $organizer,
+        ':implementer' => $implementer,
+        ':title'       => $title,
+        ':note'        => $note,
+        ':category'    => '一般', // 預設分類
+        ':event_date'  => $event_date
     ]);
 
     if ($result) {
@@ -84,6 +72,5 @@ try {
         echo json_encode(['rs' => '0', 'msg' => '儲存失敗']);
     }
 } catch (PDOException $e) {
-    echo json_encode(['rs' => '0', 'msg' => '資料庫寫入錯誤: ' . $e->getMessage()]);
+    echo json_encode(['rs' => '0', 'msg' => 'SQL錯誤：' . $e->getMessage()]);
 }
-?>
