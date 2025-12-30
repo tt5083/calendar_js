@@ -93,6 +93,33 @@
 </div>
 <!-- 事件列表視窗 Modal END -->
 <script>
+    /**
+     * 產生單個日曆格子的 HTML
+     * @param {string} date 日期字串 YYYY-MM-DD
+     * @param {number|string} dayNum 顯示的數字
+     * @param {boolean} isMainMonth 是否為當月日期
+     */
+    function renderCell(date, dayNum, isMainMonth) {
+        if (!isMainMonth) {
+            return `<td class="cell-empty" style="height:110px;"></td>`;
+        }
+
+        const todayStr = moment().format("YYYY-MM-DD");
+        const isToday = (date === todayStr);
+
+        // 決定數字顯示 (今天有圓圈)
+        const dateDisplay = isToday ?
+            `<span class="today-circle">${dayNum}</span>` :
+            `<span>${dayNum}</span>`;
+
+        const isTodayClass = isToday ? "today-highlight" : "";
+
+        return `
+        <td class="calendar_cell ${isTodayClass}" data-date="${date}">
+            <div class="fw-bold date-label" style="font-size: 14px;">${dateDisplay}</div>
+            <div id="m_${date}" class="mt-1 event-container"></div>
+        </td>`;
+    }
     var ym = moment().format("YYYY-MM");
     var eventsData = {};
 
@@ -217,57 +244,52 @@
 
     function CreateCal(InYM) {
         // ... 前方的變數定義 ...
-        var startOfMonth = moment(InYM + "-01");
-        var daysInMonth = startOfMonth.daysInMonth();
-        var firstDayOfWeek = startOfMonth.day();
-        var todayStr = moment().format("YYYY-MM-DD"); // 取得今天的日期字串
-        var isToday = (currentDate === todayStr); // 為了在今天日期數字上加上小圓圈
+        const startOfMonth = moment(InYM + "-01");
+        const daysInMonth = startOfMonth.daysInMonth();
+        const firstDayOfWeek = startOfMonth.day();
 
-        var htmlstr = `
-        <div class='row mb-3 align-items-center'>
-            <div class='col-4 text-start'><button id='calLast' class='btn btn-info btn-sm'>上個月</button></div>
-            <div class='col-4 text-center'><h3>${InYM}</h3></div>
-            <div class='col-4 text-end'>
-                <button id='calNow' class='btn btn-secondary btn-sm me-1'>本月</button>
-                <button id='calNext' class='btn btn-info btn-sm'>下個月</button>
-            </div>
+        let htmlstr = `
+        <div class='d-flex align-items-center justify-content-center mb-4'>
+        <button id='calLast' class='btn btn-outline-info btn-sm me-3'>
+            <i class="fa-solid fa-chevron-left"></i> 上個月
+        </button>
+
+        <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;'>${InYM}</h3>
+
+        <div class='ms-3 d-flex align-items-center'>
+            <button id='calNext' class='btn btn-outline-info btn-sm me-4'>
+                下個月 <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <button id='calNow' class='btn btn-secondary btn-sm'>
+                <i class="fa-solid fa-calendar-day"></i> 本月
+            </button>
         </div>
-        <table class='table table-bordered' style='table-layout: fixed;'>
-            <thead><tr class='table-light'>${['日','一','二','三','四','五','六'].map(d=>`<th class='text-center'>${d}</th>`).join('')}</tr></thead>
-            <tbody><tr>`;
-        for (var i = 0; i < firstDayOfWeek; i++) htmlstr += "<td class='bg-light'></td>";
+    </div>
 
-        // ... 前方的表格頭部 HTML ...
+    <table class='table'>
+        `;
 
-        for (var i = 1; i <= daysInMonth; i++) {
-            var currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
-
-            // 1. 先判斷是否為今天 (todayStr 必須在迴圈外先定義好)
-            var isToday = (currentDate === todayStr);
-
-            // 2. 決定數字的顯示方式 (今天顯示圓圈，其他日子顯示普通數字)
-            var dateDisplay = ""; // 先宣告一個空的變數
-            if (isToday) {
-                dateDisplay = `<span class="today-circle">${i}</span>`;
-            } else {
-                dateDisplay = `<span>${i}</span>`;
-            }
-
-            // 3. 決定格子的 CSS 類別 (今天加上高亮背景)
-            var isTodayClass = isToday ? "today-highlight" : "";
-
-            // 4. 組合 HTML (注意：要把原本的 ${i} 換成 ${dateDisplay})
-            htmlstr += `
-        <td class='calendar_cell ${isTodayClass}' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer;'>
-            <div class='fw-bold date-label' style='font-size: 14px;'>${dateDisplay}</div>
-            <div id='m_${currentDate}' class='mt-1'></div>
-        </td>`;
-
-            if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) htmlstr += "</tr><tr>";
+        // 1. 起始空白格
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            htmlstr += renderCell('', '', false);
         }
-        var remainingCells = 7 - ((daysInMonth + firstDayOfWeek) % 7);
-        if (remainingCells < 7) {
-            for (var j = 0; j < remainingCells; j++) htmlstr += "<td class='bg-light'></td>";
+
+        // 2. 有日期的格子
+        for (let i = 1; i <= daysInMonth; i++) {
+            const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
+            htmlstr += renderCell(currentDate, i, true);
+
+            // 換行邏輯
+            if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) {
+                htmlstr += "</tr><tr>";
+            }
+        }
+
+        // 3. 結束空白格
+        const totalCellsSoFar = firstDayOfWeek + daysInMonth;
+        const remainingCells = (7 - (totalCellsSoFar % 7)) % 7;
+        for (let j = 0; j < remainingCells; j++) {
+            htmlstr += renderCell('', '', false);
         }
 
         htmlstr += "</tr></tbody></table>";
