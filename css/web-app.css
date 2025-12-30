@@ -29,6 +29,9 @@ body, input, button, textarea, select {
     background-color: #f8f9fa;
     padding: 10px 0;
     font-weight: 600;
+    text-align: center;       /* 加入這一行：文字水平置中 */
+    vertical-align: middle;   /* 加入這一行：文字垂直置中 */
+    border: 1px solid #dee2e6 !important;
 }
 
 /* ==========================================================================
@@ -52,9 +55,16 @@ body, input, button, textarea, select {
     background-color: #f0f4f9 !important; /* 稍微明顯的粉藍色 */
 }
 
-/* 今天的高亮背景 */
+/* 修正：今天的高亮背景 - 使用較明顯的淺橘黃色 */
 .today-highlight {
-    background-color: #fdfdfd !important;
+    background-color: #fff9db !important; /* 明顯的黃色底 */
+    position: relative;
+}
+
+/* 確保格子的層級正確 */
+.calendar_cell {
+    transition: background-color 0.2s;
+    cursor: pointer;
 }
 
 /* 非本月空白格子的樣式 */
@@ -101,26 +111,28 @@ body, input, button, textarea, select {
 }
 
 /* 活動條樣式 */
+/* 修改 .event-title 樣式 */
+/* 修改 .event-title 樣式 */
 .event-title {
     display: block;
-    padding: 3px 8px;
-    margin-bottom: 2px;
+    padding: 4px 8px;
+    margin: 2px 4px;
     border-radius: 4px;
-    background-color: #d2e3fc; 
-    color: #1967d2;
+    background-color: #e8f0fe; /* 極淺藍背景 */
+    color: #1967d2;            /* 飽和藍文字 */
     font-size: 12px;
+    font-weight: 500;
     line-height: 1.4;
-    white-space: nowrap;      /* 不換行 */
-    overflow: hidden;         /* 隱藏超出 */
-    text-overflow: ellipsis;  /* 顯示 ... */
-    border: 1px solid transparent;
-    transition: all 0.2s;
+    border-left: 3px solid #1a73e8; /* 左側藍色色條，增加辨識度 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.2s;
 }
 
 .event-title:hover {
-    background-color: #c2d7fa;
-    border: 1px solid #1967d2;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    background-color: #d2e3fc; /* 懸停時顏色加深 */
+    color: #174ea6;
 }
 
 /* 客製化捲軸樣式 */

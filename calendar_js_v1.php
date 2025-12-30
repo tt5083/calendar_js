@@ -23,12 +23,12 @@
 <body>
     <div id="tb">
     </div>
-    <!-- 新增事件 Modal -->
+    <!-- 新增活動 Modal -->
     <div class="modal fade" id="addEventModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">新增事件</h5>
+                    <h5 class="modal-title">新增活動</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -88,8 +88,8 @@
         </div>
     </div>
 </body>
-<!-- 新增事件 Modal END -->
-<!-- 事件列表視窗 Modal -->
+<!-- 新增活動 Modal END -->
+<!-- 活動列表視窗 Modal -->
 <div class="modal fade" id="viewEventModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -286,7 +286,7 @@
 
     // --- 核心函數：開啟新增視窗 ---
     function openAddModal(date) {
-        $("#addEventModal .modal-title").text("新增事件");
+        $("#addEventModal .modal-title").text("新增活動");
         $("#addEventForm")[0].reset(); // 重置所有輸入
         $("#event_id_input").val(""); // 【重要】確保 ID 被清空，後端才會判斷為新增
         $("#selectedDate").val(date);
@@ -305,7 +305,7 @@
             <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;'>${InYM}</h3>
             <button id='calNext' class='btn btn-outline-info btn-sm ms-3'>下個月 <i class="fa-solid fa-chevron-right"></i></button>
             <button id='calNow' class='btn btn-secondary btn-sm ms-3'>本月</button>
-        </div><table class='table'><thead><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody><tr>`;
+        </div><table class='table'><thead><tr><th>星期日</th><th>星期一</th><th>星期二</th><th>星期三</th><th>星期四</th><th>星期五</th><th>星期六</th></tr></thead><tbody><tr>`;
 
         for (let i = 0; i < firstDayOfWeek; i++) htmlstr += renderCell('', '', false);
         for (let i = 1; i <= daysInMonth; i++) {
