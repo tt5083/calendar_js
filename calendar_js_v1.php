@@ -221,6 +221,7 @@
         var daysInMonth = startOfMonth.daysInMonth();
         var firstDayOfWeek = startOfMonth.day();
         var todayStr = moment().format("YYYY-MM-DD"); // 取得今天的日期字串
+        var isToday = (currentDate === todayStr); // 為了在今天日期數字上加上小圓圈
 
         var htmlstr = `
         <div class='row mb-3 align-items-center'>
@@ -240,17 +241,30 @@
 
         for (var i = 1; i <= daysInMonth; i++) {
             var currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
-            月
-            // 【關鍵點】：比對目前產生的日期是否等於今天
-            var isTodayClass = (currentDate === todayStr) ? "today-highlight .fw-bold" : "";
+
+            // 1. 先判斷是否為今天 (todayStr 必須在迴圈外先定義好)
+            var isToday = (currentDate === todayStr);
+
+            // 2. 決定數字的顯示方式 (今天顯示圓圈，其他日子顯示普通數字)
+            var dateDisplay = ""; // 先宣告一個空的變數
+            if (isToday) {
+                dateDisplay = `<span class="today-circle">${i}</span>`;
+            } else {
+                dateDisplay = `<span>${i}</span>`;
+            }
+
+            // 3. 決定格子的 CSS 類別 (今天加上高亮背景)
+            var isTodayClass = isToday ? "today-highlight" : "";
+
+            // 4. 組合 HTML (注意：要把原本的 ${i} 換成 ${dateDisplay})
             htmlstr += `
-                <td class='calendar_cell ${isTodayClass}' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer; background: #fff;'>
-                    <div class='fw-bold' style='font-size: 14px;'>${i}</div>
-                    <div id='m_${currentDate}' class='mt-1'></div>
-                </td>`;
+        <td class='calendar_cell ${isTodayClass}' data-date='${currentDate}' style='height:110px; vertical-align: top; cursor: pointer;'>
+            <div class='fw-bold date-label' style='font-size: 14px;'>${dateDisplay}</div>
+            <div id='m_${currentDate}' class='mt-1'></div>
+        </td>`;
+
             if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) htmlstr += "</tr><tr>";
         }
-
         var remainingCells = 7 - ((daysInMonth + firstDayOfWeek) % 7);
         if (remainingCells < 7) {
             for (var j = 0; j < remainingCells; j++) htmlstr += "<td class='bg-light'></td>";
