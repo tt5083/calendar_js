@@ -314,7 +314,24 @@
             htmlstr += renderCell(currentDate, i, true);
             if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) htmlstr += "</tr><tr>";
         }
-        htmlstr += "</tr></tbody></table>";
+        htmlstr += "</tr></tbody>";
+        // 新增底部備註列 (使用 tfoot)
+        htmlstr += `
+        <tfoot class="month-notes-footer">
+            <tr>
+                <td colspan="1" class="notes-label-cell">
+                    <i class="fa-solid fa-clipboard-list me-1"></i> 當月備註彙整
+                </td>
+                <td colspan="6" class="notes-content-cell">
+                    <div id="month-notes-summary">
+                        <span class="text-muted small">自動彙整本月所有活動備註...</span>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
+    `;
+
+        htmlstr += "</table>"; // 結束表格
         return htmlstr;
     }
 
