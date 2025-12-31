@@ -216,8 +216,8 @@
             $("#event_id_input").val(d.event_id);
             $("input[name='event_publisher']").val(d.event_publisher);
             $("input[name='event_title']").val(d.event_title);
-            $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T"));
-            $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T") : "");
+            $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T").substring(0, 16));
+            $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "");
             $("input[name='event_location']").val(d.event_location);
             $("input[name='event_lector']").val(d.event_lector);
             $("input[name='event_organizer']").val(d.event_organizer);
@@ -249,11 +249,15 @@
                     var eventHtml = "";
                     $.each(eventList, function(i, item) {
                         eventHtml += `
-                            <div class='event-title text-truncate' 
-                                 onclick='event.stopPropagation(); viewEventDetail("${dateKey}", ${i})'
-                                 title='${item.event_title}'>
-                                ${item.event_title}
-                            </div>`;
+                        <div class='event-item-box' 
+                             onclick='event.stopPropagation(); viewEventDetail("${dateKey}", ${i})'
+                             title='${item.event_title} (${item.event_implementer} ${item.event_location})'>
+
+                            <div class="event-time-row">
+                                ${moment(item.event_start_date).format('HH:mm')}-${moment(item.event_end_date).format('HH:mm')}
+                                ${item.event_title}(${item.event_implementer} ${item.event_location})
+                            </div>
+                        </div>`;
                         // 2. 收集備註邏輯
                         if (item.event_note && item.event_note.trim() !== "") {
                             const shortDate = moment(item.event_start_date).format("MM/DD HH:mm");
