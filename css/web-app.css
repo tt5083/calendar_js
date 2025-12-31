@@ -286,18 +286,21 @@ input.datetimepicker {
 .event-item-box:hover {
     background-color: #d2e3fc; /* 滑鼠移入時加深 */
     color: #174ea6;
+    display: block;
+    /* 修改這裡：將 2px 改大（例如 6px），增加上下活動間的距離 */
+    margin: 6px 4px;
 }
 
 /* 第一行：時間的樣式 */
 .event-time-row {
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     margin-bottom: 1px;
 }
 
 /* 第二行：標題與地點的樣式 */
 .event-name-row {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     white-space: nowrap;      /* 強制單行 */
     overflow: hidden;         /* 隱藏超出部分 */
