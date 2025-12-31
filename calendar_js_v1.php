@@ -258,15 +258,20 @@
                         if (item.event_note && item.event_note.trim() !== "") {
                             const shortDate = moment(item.event_start_date).format("MM/DD HH:mm");
 
+                            // --- 新增：判定是否為今天 ---
+                            const isToday = moment(item.event_start_date).isSame(moment(), 'day');
+                            const todayClass = isToday ? "is-today-note" : ""; // 如果是今天，就加入這個 Class
+                            // -------------------------
+
                             allNotesHtml += `
-                    <div class="note-card-row">
-                        <div class="note-card-sidebar"></div>
-                        <div class="note-card-body">
-                        <span class="note-time-tag">${shortDate}</span>
-                        <span class="note-divider">|</span>
-                        <span class="note-text-content">${item.event_note}</span>
-                        </div>
-                    </div>`;
+                                <div class="note-card-row ${todayClass}">
+                                    <div class="note-card-sidebar"></div>
+                                    <div class="note-card-body">
+                                        <span class="note-time-tag">${shortDate}</span>
+                                        <span class="note-divider">|</span>
+                                        <span class="note-text-content">${item.event_note}</span>
+                                    </div>
+                                </div>`;
                         }
                         // 2. 收集備註邏輯 END 12/31 add
                     });

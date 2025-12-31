@@ -250,3 +250,20 @@ input.datetimepicker {
     word-break: break-all;
 }
 /* 備註外層容器 End*/
+
+/* 當天備註的反黃樣式 */
+.note-card-row.is-today-note {
+    background-color: #fff9c4 !important; /* 淺黃色背景 */
+    border: 1px solid #fbc02d;           /* 深黃色邊框 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 加強陰影讓它跳出來 */
+}
+
+/* 當天備註的左側色條改為橘黃色，更明顯 */
+.note-card-row.is-today-note .note-card-sidebar {
+    background-color: #fbc02d; 
+}
+
+/* 當天備註的時間文字也可以稍微改色 */
+.note-card-row.is-today-note .note-time-tag {
+    color: #f57f17; 
+}
