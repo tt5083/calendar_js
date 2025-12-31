@@ -175,3 +175,78 @@ input.datetimepicker {
     cursor: pointer;
 }
 
+/* 備註欄位標題格 (左側) */
+.notes-label-cell {
+    background-color: #f8f9fa;
+    color: #333;
+    font-size: 18px;          /* 字體加大 */
+    /* font-weight: 800; */          /* 字體加粗 */
+    text-align: center;        /* 水平置中 */
+    vertical-align: middle !important; /* 垂直置中 */
+    white-space: nowrap;
+}
+
+/* 備註內容格：改為靠左，讓內容水平排列 */
+.notes-content-cell {
+    text-align: left !important;
+    vertical-align: middle !important;
+    padding: 10px 15px !important;
+    background-color: #fff;
+}
+
+/* 備註外層容器 start*/
+#month-notes-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 每一列之間的間距 */
+}
+
+/* 卡片式列樣式 */
+.note-card-row {
+    display: flex;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* 左側裝飾色條 */
+.note-card-sidebar {
+    width: 6px;
+    background-color: #0d6efd; /* 您可以換成喜歡的顏色 */
+    flex-shrink: 0;
+}
+
+/* 內容區塊佈局 */
+.note-card-body {
+    display: flex;
+    align-items: center; /* 垂直置中 */
+    padding: 10px 15px;
+    width: 100%;
+}
+
+/* --- 【手動微調處】 --- */
+.note-time-tag {
+    font-weight: bold;
+    color: #0d6efd;
+    text-decoration: underline;
+    font-size: 15px;
+    
+    /* 調整時間寬度，確保後方文字對齊 */
+    min-width: 90px; 
+    display: inline-block;
+}
+
+.note-divider {
+    color: #ccc;
+    margin: 0 7px; /* 調整時間與備註之間的間隙 */
+}
+
+.note-text-content {
+    color: #444;
+    font-size: 15px;
+    line-height: 1.5;
+    word-break: break-all;
+}
+/* 備註外層容器 End*/

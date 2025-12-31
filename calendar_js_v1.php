@@ -25,64 +25,66 @@
     </div>
     <!-- 新增活動 Modal -->
     <div class="modal fade" id="addEventModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">新增活動</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-calendar-plus me-2"></i>活動編輯</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addEventForm">
                         <input type="hidden" id="event_id_input" name="event_id">
-                        <div class="mb-3">
-                            <label class="form-label">發佈人姓名 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_publisher" required>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">地點</label>
-                            <input type="text" class="form-control" name="event_location">
-                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">活動主題 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg" name="event_title" placeholder="請輸入活動名稱" required>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">開始日期時間 <span class="text-danger">*</span></label>
-                            <input type="datetime-local" class="form-control" onclick="this.showPicker()" name="event_start_date" required>
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">發佈人姓名 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="event_publisher" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">地點</label>
+                                <input type="text" class="form-control" name="event_location" placeholder="例如：會議室A">
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">結束日期時間</label>
-                            <input type="datetime-local" class="form-control" onclick="this.showPicker()" name="event_end_date">
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-primary">開始時間 <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control border-primary" onclick="this.showPicker()" name="event_start_date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">結束時間</label>
+                                <input type="datetime-local" class="form-control" onclick="this.showPicker()" name="event_end_date">
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">講師 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_lector" required>
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">講師 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="event_lector" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">承辦單位 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="event_organizer" required>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">承辦單位 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_organizer" required>
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">承辦人 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="event_implementer" required>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">承辦人 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_implementer" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">主題 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="event_title" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">備註</label>
-                            <textarea class="form-control" name="event_note" rows="3"></textarea>
+                            <div class="col-12 mb-3">
+                                <hr> <label class="form-label">備註事項</label>
+                                <textarea class="form-control" name="event_note" rows="2" placeholder="如有其他注意事項請在此填寫"></textarea>
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="saveEventBtn">儲存事件</button>
+                    <button type="button" class="btn btn-primary px-4" id="saveEventBtn">
+                        <i class="fa-solid fa-save me-1"></i> 儲存活動資料
+                    </button>
                 </div>
             </div>
         </div>
@@ -240,6 +242,7 @@
             dataType: 'json',
             success: function(events) {
                 eventsData = events; // 存入全域供點擊時查詢
+                let allNotesHtml = ""; // 用來存放所有當月備註, 12/31 add
                 // 重新渲染格子內的事件內容
                 $.each(events, function(dateKey, eventList) {
                     var cellId = "#m_" + dateKey;
@@ -251,9 +254,31 @@
                                  title='${item.event_title}'>
                                 ${item.event_title}
                             </div>`;
+                        // 2. 收集備註邏輯
+                        if (item.event_note && item.event_note.trim() !== "") {
+                            const shortDate = moment(item.event_start_date).format("MM/DD HH:mm");
+
+                            allNotesHtml += `
+                    <div class="note-card-row">
+                        <div class="note-card-sidebar"></div>
+                        <div class="note-card-body">
+                        <span class="note-time-tag">${shortDate}</span>
+                        <span class="note-divider">|</span>
+                        <span class="note-text-content">${item.event_note}</span>
+                        </div>
+                    </div>`;
+                        }
+                        // 2. 收集備註邏輯 END 12/31 add
                     });
                     $(cellId).html(eventHtml);
                 });
+                // 3. 填入底部彙整區塊 12/31 add
+                if (allNotesHtml !== "") {
+                    $("#month-notes-summary").html(allNotesHtml);
+                } else {
+                    $("#month-notes-summary").html("<span class='text-muted small'>本月尚無活動備註。</span>");
+                }
+                // 3. 填入底部彙整區塊 END
             }
         });
     }
@@ -320,7 +345,7 @@
         <tfoot class="month-notes-footer">
             <tr>
                 <td colspan="1" class="notes-label-cell">
-                    <i class="fa-solid fa-clipboard-list me-1"></i> 當月備註彙整
+                    <i class="fa-solid fa-clipboard-list me-1"></i> 當月備註
                 </td>
                 <td colspan="6" class="notes-content-cell">
                     <div id="month-notes-summary">
