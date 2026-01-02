@@ -668,58 +668,6 @@ function padRight(str, lenght) {
     }
 }
 
-//------------------------------系統-日曆(大)-S------------------------------
-//建立
-function CreateCal(InYM) {
-    const startOfMonth = moment(InYM + "-01"); //
-    const daysInMonth = startOfMonth.daysInMonth(); //
-    const firstDayOfWeek = startOfMonth.day(); // 0 (日) 到 6 (六)
-
-    let htmlstr = `
-        <div class='row'>
-            <div class='col text-center'><button type='button' id='calLast' class='btn btn-info'>上個月</button></div>
-            <div class='col-8 text-center'><span>${InYM}</span></div>
-            <div class='col text-center'><button type='button' id='calNow' class='btn btn-light'>本月</button></div>
-            <div class='col text-center'><button type='button' id='calNext' class='btn btn-info'>下個月</button></div>
-        </div>
-        <table class='table table-bordered table-striped table-hover mt-1'>
-            <thead>
-                <tr>
-                    ${['日', '一', '二', '三', '四', '五', '六'].map(d => `<th class='text-center'>星期${d}</th>`).join('')}
-                </tr>
-            </thead>
-            <tbody><tr class='calendar_body'>`;
-
-    // 1. 填補月初空白
-    for (let i = 0; i < firstDayOfWeek; i++) {
-        const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD");
-        htmlstr += `
-    <td class='calendar_cell' data-date='${currentDate}' style='cursor:pointer;'>
-        <div class='date-num'>${i}</div>
-        <div id='m_${currentDate}' class='event-container'></div>
-    </td>`;
-    }
-
-    // 2. 填寫日期
-    for (let i = 1; i <= daysInMonth; i++) {
-        const currentDate = startOfMonth.clone().date(i).format("YYYY-MM-DD"); // 自動處理 padLeft
-        const displayDay = moment(currentDate).format("DD");
-
-        htmlstr += `
-            <td class='calendar_cell' data-date='${currentDate}' style='cursor:pointer;'>
-        <div class='date-num'>${i}</div>
-        <div id='m_${currentDate}' class='event-container'></div>
-    </td>`;
-
-        // 每周換行
-        if ((i + firstDayOfWeek) % 7 === 0 && i !== daysInMonth) {
-            htmlstr += "</tr><tr class='calendar_body'>";
-        }
-    }
-
-    htmlstr += "</tr></tbody></table>";
-    return htmlstr;
-}
 //------------------------------系統-日曆(大)-End------------------------------
 // 彈窗顯示
 function showSwal(titleTxt, success, text = null, callback = null) {

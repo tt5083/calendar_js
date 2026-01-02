@@ -1,17 +1,19 @@
 <?php
 // save_event.php
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-$host = 'localhost';
-$dbname = 'stcalendar';
-$username = 'root';
-$password = '';
+require_once '../connection/db.php';
+
+// CSRF Token Validation
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    echo json_encode(['rs' => '0', 'msg' => '無效的請求，CSRF token 驗證失敗。']);
+    exit;
+}
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-} catch (PDOException $e) {
+    $pdo = get_db_connection();
+} catch (Exception $e) {
     echo json_encode(['rs' => '0', 'msg' => '資料庫連線失敗']);
     exit;
 }
@@ -27,6 +29,7 @@ $organizer   = $_POST['event_organizer'] ?? '';
 $implementer = $_POST['event_implementer'] ?? '';
 $title       = $_POST['event_title'] ?? '';
 $note        = $_POST['event_note'] ?? '';
+// CSRF token is already used, no need to process it further
 
 // 2. 處理日期
 $event_date = null;

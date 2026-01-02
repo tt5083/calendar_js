@@ -182,7 +182,7 @@ input.datetimepicker {
     font-size: 18px;          /* 字體加大 */
     /* font-weight: 800; */          /* 字體加粗 */
     text-align: center;        /* 水平置中 */
-    vertical-align: middle !important; /* 垂直置中 */
+    vertical-align: top !important; /* 垂直置中 */
     white-space: nowrap;
 }
 
@@ -313,4 +313,69 @@ input.datetimepicker {
     background-color: #fef7e0; 
     border-left-color: #fbbc04;
     color: #b06000;
+}
+/* 詳情視窗內的欄位列對齊 */
+#viewEventContent .row {
+    margin: 0;
+    display: flex;
+}
+
+#viewEventContent .col-3 {
+    /* 確保左側標籤背景色延伸到底部 */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: #f8f9fa !important;
+}
+
+#viewEventContent .col-9 {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+/* 讓 Modal 內容不要有預設內距，方便表格貼齊 */
+#viewEventModal .modal-body {
+    padding: 0;
+}
+/* ==========================================================================
+   7. 活動詳情視窗 (View Event Modal) 專屬修正
+   ========================================================================== */
+
+/* 強制調整詳情視窗內的表格佈局，不被日曆主表格的 fixed 樣式影響 */
+#viewEventContent .table {
+    table-layout: auto !important; 
+    border-collapse: separate !important;
+    border-spacing: 0;
+    width: 100% !important;
+}
+
+/* 欄位名稱 (左側 th) */
+#viewEventContent th {
+    background-color: #f1f3f4 !important; /* 稍微深一點的灰色，更有區隔感 */
+    color: #3c4043 !important;
+    font-weight: 700 !important;
+    text-align: right !important;        /* 文字靠右對齊冒號 */
+    vertical-align: middle !important;
+    padding: 12px 15px !important;       /* 強制加入內距，避免文字消失 */
+    width: 130px !important;             /* 給予固定寬度確保名稱不換行 */
+    white-space: nowrap !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* 欄位數值 (右側 td) */
+#viewEventContent td {
+    background-color: #ffffff !important;
+    color: #202124 !important;
+    text-align: left !important;
+    vertical-align: middle !important;
+    padding: 12px 15px !important;       /* 保持與標題一致的對齊感 */
+    border: 1px solid #dee2e6 !important;
+}
+
+/* 備註區塊微調 */
+#viewEventContent .border.rounded.bg-light {
+    background-color: #f8f9fa !important;
+    border: 1px solid #dadce0 !important;
+    margin-top: 5px;
 }

@@ -1,15 +1,18 @@
 <?php
 // delete_event.php
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-// 資料庫設定
-$host = 'localhost';
-$dbname = 'stcalendar';
-$username = 'root';
-$password = '';
+require_once '../connection/db.php';
+
+// CSRF Token Validation
+if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    echo json_encode(['rs' => '0', 'msg' => '無效的請求，CSRF token 驗證失敗。']);
+    exit;
+}
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo = get_db_connection();
     $event_id = $_POST['event_id'] ?? null;
 
     if ($event_id) {
