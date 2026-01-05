@@ -193,6 +193,36 @@ $csrf_token = $_SESSION['csrf_token'];
             </div>
             {{/each}}
         </div>
-    </script>
+</script>
+<!-- 週 模版 -->
+<script id="week-template" type="text/x-handlebars-template">
+    <table class='table table-bordered'>
+        <thead>
+            <tr class="table-light">
+                <th style="width: 80px;">時間</th>
+                {{#each days}}
+                <th>{{dayName}}<br><small>{{date}}</small></th>
+                {{/each}}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-center bg-light fw-bold">全天活動</td>
+                {{#each days}}
+                <td class="calendar_cell {{#if isToday}}today-highlight{{/if}}" data-date="{{date}}" onclick="openAddModal('{{date}}')">
+                    <div class="event-container">
+                        {{#each filteredEvents}}
+                        <div class="event-item-box" onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
+                            <div class="event-time-row">{{startTime}}</div>
+                            <div class="event-name-row">{{event_title}}</div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </td>
+                {{/each}}
+            </tr>
+        </tbody>
+    </table>
+</script>
 
 </html>
