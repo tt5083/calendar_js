@@ -17,14 +17,15 @@ $csrf_token = $_SESSION['csrf_token'];
     <link href="css/appcsslib.css" rel="stylesheet">
     <link id="bs-css" href="css/bootstrap-cerulean.min.css" rel="stylesheet">
     <link href="css/web-app.css" rel="stylesheet">
-    
+
     <script src="js/jqlib.js"></script>
+    <script src="js/calendar_page.js"></script>
     <script src="js/jqdataTables.js"></script>
     <script src="js/tool.openWindow.js"></script>
     <script src="js/web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
-    
+
     <link rel="shortcut icon" href="img/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -35,7 +36,7 @@ $csrf_token = $_SESSION['csrf_token'];
         <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;' id="displayYM"></h3>
         <button id='calNext' class='btn btn-outline-info btn-sm ms-3'>下個月 <i class="fa-solid fa-chevron-right"></i></button>
         <button id='calNow' class='btn btn-secondary btn-sm ms-3'>本月</button>
-        
+
         <div class="ms-3 d-inline-block">
             <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px;">
                 <option value="">所有地點</option>
@@ -177,9 +178,9 @@ $csrf_token = $_SESSION['csrf_token'];
             </tfoot>
         </table>
     </script>
-
-    <script id="event-detail-template" type="text/x-handlebars-template">
-        <div class="container-fluid px-0">
+</body>
+<script id="event-detail-template" type="text/x-handlebars-template">
+    <div class="container-fluid px-0">
             {{#each fields}}
             <div class="row g-0 border-bottom align-items-center">
                 <div class="col-3 bg-light text-end py-2 px-3 fw-bold">{{label}}：</div>
@@ -191,6 +192,4 @@ $csrf_token = $_SESSION['csrf_token'];
         </div>
     </script>
 
-    <script src="js/calendar_page.js"></script>
-</body>
 </html>
