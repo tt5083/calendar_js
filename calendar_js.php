@@ -45,6 +45,10 @@ $csrf_token = $_SESSION['csrf_token'];
                 <option value="水電">水電</option>
             </select>
         </div>
+        <div class="btn-group ms-3">
+            <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
+            <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
+        </div>
     </div>
 
     <div id="tb" class="container-fluid"></div>
@@ -146,8 +150,7 @@ $csrf_token = $_SESSION['csrf_token'];
                             {{#each filteredEvents}}
                             <div class="event-item-box" onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
                                 <div class="event-time-row">{{startTime}}-{{endTime}}</div>
-                                <div class="event-name-row">{{event_title}}</div>
-                            </div>
+                                <div class="event-name-row">{{event_title}}({{event_implementer}}{{event_location}})</div>                            </div>
                             {{/each}}
                         </div>
                     </td>
