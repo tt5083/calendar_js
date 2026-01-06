@@ -44,17 +44,10 @@ body, input, button, textarea, select {
     /* 固定高度移除,將垂直高度改為適應性
     height: 110px; */
     /* min-height: 110px; */
-    height: auto;
+    height: 110px !important; /* 直接設定 height，內容多時表格會自動撐開 */
     transition: background-color 0.15s ease;
     cursor: pointer;
     vertical-align: top; /* 確保內容從頂部開始排 */
-}
-
-/* 對內層容器設定最小高度 */
-#tb td.calendar_cell .event-container {
-    min-height: 110px; /* 這裡會生效 */
-    height: auto;
-    width: 100%;
 }
 
 /* 滑鼠懸停效果 */
