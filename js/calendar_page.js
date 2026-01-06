@@ -246,13 +246,24 @@ function viewEventDetail(date, index) {
 
     const source = $("#event-detail-template").html();
     const template = Handlebars.compile(source);
+    // 使用 moment 格式化時間，排除秒數
+    const startTime = eventData.event_start_date ? moment(eventData.event_start_date).format('YYYY-MM-DD HH:mm') : '';
+    const endTime = eventData.event_end_date ? moment(eventData.event_end_date).format('YYYY-MM-DD HH:mm') : '';
 
     // 這裡建立 Handlebars 需要的 context
     const context = {
         fields: [
-            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(eventData.event_title)}</b>`, isHtml: true },
+            { label: '發佈人', value: eventData.event_publisher, isHtml: false },
+            { label: '活動類別', value: eventData.event_category, isHtml: false },
+            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(eventData.event_title)}</b>`, isHtml: true }, 
+            { label: '活動開始時間', value: startTime, isHtml: false },
+            { label: '活動結束時間', value: endTime, isHtml: false },
             { label: '活動地點', value: eventData.event_location, isHtml: false },
-            { label: '承辦人', value: eventData.event_implementer, isHtml: false }
+            { label: '講師', value: eventData.event_lector, isHtml: false },
+            { label: '承辦人', value: eventData.event_implementer, isHtml: false },
+            { label: '承辦單位', value: eventData.event_organizer, isHtml: false },
+            { label: '備註', value: eventData.event_note, isHtml: false }
+
         ]
     };
 
