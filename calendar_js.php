@@ -14,7 +14,7 @@ $csrf_token = $_SESSION['csrf_token'];
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
     <title>活動日曆 - 原生 JS 版</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/appcsslib.css" rel="stylesheet">
     <link href="css/web-app.css" rel="stylesheet">
@@ -23,12 +23,12 @@ $csrf_token = $_SESSION['csrf_token'];
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
-    
+
     <script src="js/tool.openWindow.js"></script>
     <script src="js/calendar_page.js"></script>
 
     <link rel="shortcut icon" href="img/favicon.png">
-    
+
     <style>
         /* 補充：確保日曆格子在原生 BS5 下的高度表現 */
         .calendar_cell {
@@ -36,8 +36,15 @@ $csrf_token = $_SESSION['csrf_token'];
             cursor: pointer;
             vertical-align: top;
         }
-        .today-highlight { background-color: #fff9db !important; }
-        .cell-empty { background-color: #f8f9fa; cursor: default; }
+
+        .today-highlight {
+            background-color: #fff9db !important;
+        }
+
+        .cell-empty {
+            background-color: #f8f9fa;
+            cursor: default;
+        }
     </style>
 </head>
 
@@ -173,7 +180,7 @@ $csrf_token = $_SESSION['csrf_token'];
                             <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" 
                                  onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
                                 <div class="text-muted fw-bold" style="font-size: 0.75rem;">{{startTime}}-{{endTime}}</div>
-                                <div class="text-truncate">{{event_title}}</div>
+                                <div class="text-wrap">{{event_title}}({{event_implementer}}{{event_location}})</div>
                             </div>
                             {{/each}}
                         </div>
@@ -225,7 +232,7 @@ $csrf_token = $_SESSION['csrf_token'];
                             <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" 
                                  onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
                                 <div class="fw-bold text-primary">{{startTime}}</div>
-                                <div class="text-wrap">{{event_title}}</div>
+                                <div class="text-wrap">{{event_title}}({{event_implementer}}{{event_location}})</div>
                             </div>
                             {{/each}}
                         </div>
@@ -267,4 +274,5 @@ $csrf_token = $_SESSION['csrf_token'];
     </script>
 
 </body>
+
 </html>
