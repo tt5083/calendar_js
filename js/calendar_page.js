@@ -14,7 +14,7 @@ let ym = moment().format("YYYY-MM");
 let eventsData = {};
 let currentViewEvent = null;
 let filterLocation = "";
-let currentView = "month";
+let currentView = "month"; 
 let currentWeekStart = moment().startOf('week');
 
 /* --- 3. 頁面初始化與監聽 --- */
@@ -109,10 +109,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 編輯與刪除按鈕 (放在 Modal 內，使用委派或直接監聽)
-    document.getElementById('btnEditInView')?.addEventListener('click', function () {
+    document.getElementById('btnEditInView')?.addEventListener('click', function() {
         if (!currentViewEvent) return;
         hideModal('viewEventModal');
-
+        
         setTimeout(() => {
             const d = currentViewEvent;
             document.querySelector("#addEventModal .modal-title").textContent = "編輯事件";
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 400);
     });
 
-    document.getElementById('btnDeleteInView')?.addEventListener('click', async function () {
+    document.getElementById('btnDeleteInView')?.addEventListener('click', async function() {
         if (!currentViewEvent) return;
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
@@ -283,7 +283,7 @@ function openAddModal(date) {
     document.getElementById("event_id_input").value = "";
     document.querySelector("input[name='event_start_date']").value = date + "T08:00";
     document.querySelector("input[name='event_end_date']").value = date + "T17:00";
-
+    
     showModal('addEventModal');
 }
 
@@ -294,7 +294,7 @@ function viewEventDetail(date, index) {
 
     const source = document.getElementById("event-detail-template").innerHTML;
     const template = Handlebars.compile(source);
-
+    
     const startTime = eventData.event_start_date ? moment(eventData.event_start_date).format('YYYY-MM-DD HH:mm') : '';
     const endTime = eventData.event_end_date ? moment(eventData.event_end_date).format('YYYY-MM-DD HH:mm') : '';
 
@@ -302,7 +302,7 @@ function viewEventDetail(date, index) {
         fields: [
             { label: '發佈人', value: eventData.event_publisher, isHtml: false },
             { label: '活動類別', value: eventData.event_category, isHtml: false },
-            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(eventData.event_title)}</b>`, isHtml: true },
+            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(eventData.event_title)}</b>`, isHtml: true }, 
             { label: '活動開始時間', value: startTime, isHtml: false },
             { label: '活動結束時間', value: endTime, isHtml: false },
             { label: '活動地點', value: eventData.event_location, isHtml: false },
@@ -321,9 +321,10 @@ function viewEventDetail(date, index) {
 function updateNavigationButtons() {
     const isMonth = (currentView === "month");
     const suffix = isMonth ? "個月" : "週";
-
+    
     document.getElementById("calLast").innerHTML = `<i class="fa-solid fa-chevron-left"></i> 上一${suffix}`;
     document.getElementById("calNext").innerHTML = `下一${suffix} <i class="fa-solid fa-chevron-right"></i>`;
+    /* document.getElementById("calNow").textContent = `本${suffix}`; 改今天*/
     document.getElementById("calNow").textContent = "今天";
 }
 
