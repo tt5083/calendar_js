@@ -131,9 +131,9 @@ function initscal(InYM) {
     });
 }
 
-// B. 渲染派發中心 (這是您原本缺少的)
+// B. 渲染派發中心 (您原本缺少的)
 function renderCalendar() {
-if (currentView === "month") {
+    if (currentView === "month") {
         renderMonthView();
     } else {
         renderWeekView();
@@ -259,3 +259,54 @@ function viewEventDetail(date, index) {
     $("#viewEventContent").html(template(context));
     $('#viewEventModal').modal('show');
 }
+// 編輯活動
+$(document).on("click", "#btnEditInView", function () {
+    if (!currentViewEvent) return;
+    var vModalEl = document.getElementById('viewEventModal');
+    bootstrap.Modal.getInstance(vModalEl).hide();
+    $("#addEventModal .modal-title").text("編輯事件");
+    $("#addEventForm")[0].reset();
+    const d = currentViewEvent;
+    $("#event_id_input").val(d.event_id);
+    $("input[name='event_publisher']").val(d.event_publisher);
+    $("input[name='event_title']").val(d.event_title);
+    $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T").substring(0, 16));
+    $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "");
+    $("input[name='event_location']").val(d.event_location);
+    $("input[name='event_lector']").val(d.event_lector);
+    $("input[name='event_organizer']").val(d.event_organizer); // 原本是 .organizer 修正為 .event_organizer
+    $("input[name='event_implementer']").val(d.event_implementer);
+    $("textarea[name='event_note']").val(d.event_note);
+    var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
+    addModal.show();
+});
+
+// 刪除活動
+// --- 4. 刪除邏輯 ---
+$(document).on("click", "#btnDeleteInView", function () {
+    if (!currentViewEvent) return;
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    if (confirm("您確定要刪除「" + escapeHTML(currentViewEvent.event_title) + "」嗎？")) {
+        $.ajax({
+            url: 'api/delete_event.php',
+            type: 'POST',
+            data: {
+                event_id: currentViewEvent.event_id,
+                csrf_token: csrfToken
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.rs == "1") {
+                    var modalEl = document.getElementById('viewEventModal');
+                    bootstrap.Modal.getInstance(modalEl).hide();
+                    $('.modal-backdrop').remove();
+                    showSwal("刪除成功", true, "", function () {
+                        initscal(ym);
+                    });
+                } else {
+                    showSwal(response.msg || "刪除失敗", false);
+                }
+            }
+        });
+    }
+});

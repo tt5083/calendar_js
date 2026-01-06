@@ -19,12 +19,12 @@ $csrf_token = $_SESSION['csrf_token'];
     <link href="css/web-app.css" rel="stylesheet">
 
     <script src="js/jqlib.js"></script>
-    <script src="js/calendar_page.js"></script>
     <script src="js/jqdataTables.js"></script>
     <script src="js/tool.openWindow.js"></script>
     <script src="js/web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="js/calendar_page.js"></script>
 
     <link rel="shortcut icon" href="img/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -78,11 +78,11 @@ $csrf_token = $_SESSION['csrf_token'];
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-primary">開始時間 <span class="text-danger">*</span></label>
-                                <input type="datetime-local" class="form-control border-primary" name="event_start_date" required>
+                                <input type="datetime-local" class="form-control border-primary" name="event_start_date" onclick="this.showPicker()" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">結束時間</label>
-                                <input type="datetime-local" class="form-control" name="event_end_date">
+                                <input type="datetime-local" class="form-control" name="event_end_date" onclick="this.showPicker()" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">講師 <span class="text-danger">*</span></label>
