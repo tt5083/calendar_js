@@ -177,9 +177,16 @@ async function initscal(InYM) {
 
 function renderCalendar() {
     updateNavigationButtons();
+
     if (currentView === "month") {
+        // 1. 月檢視標題
+        document.getElementById("displayYM").textContent = ym;
         renderMonthView();
     } else {
+        // 2. 週檢視標題 (年. 第 N 週)
+        const year = currentWeekStart.format("YYYY");
+        const weekNum = currentWeekStart.week();
+        document.getElementById("displayYM").textContent = year + " 第 " + weekNum + " 週";
         renderWeekView();
     }
 }
@@ -221,7 +228,8 @@ function renderMonthView() {
     const source = document.getElementById("calendar-template").innerHTML;
     const template = Handlebars.compile(source);
     document.getElementById("tb").innerHTML = template({ rows: rows, notes: allFilteredNotes });
-    document.getElementById("displayYM").textContent = ym;
+    /* 不專一顯示在calnow顯示年月,也會影響到renderWeekView ,renderCalendar 統一控管*/
+    /* document.getElementById("displayYM").textContent = ym; */
 }
 
 function renderWeekView() {
@@ -244,7 +252,8 @@ function renderWeekView() {
     const source = document.getElementById("week-template").innerHTML;
     const template = Handlebars.compile(source);
     document.getElementById("tb").innerHTML = template({ days: days, notes: allFilteredNotes });
-    document.getElementById("displayYM").textContent = currentWeekStart.format("YYYY-MM-DD") + " 週";
+    /* 同renderMonthView,區分顯示月與週的字,不被綁死，renderCalendar 統一控管*/
+    /* document.getElementById("displayYM").textContent = currentWeekStart.format("YYYY-MM-DD") + " 週"; */
 }
 
 function processEvents(dayEvents, dateStr, todayStr, noteArray) {
