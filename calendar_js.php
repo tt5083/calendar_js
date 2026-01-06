@@ -222,6 +222,28 @@ $csrf_token = $_SESSION['csrf_token'];
                 {{/each}}
             </tr>
         </tbody>
+        {{! --- 新增：當週備註區塊 --- }}
+        <tfoot class="month-notes-footer">
+            <tr>
+                <td colspan="1" class="notes-label-cell">當週備註</td>
+                <td colspan="7" class="notes-content-cell">
+                    <div id="month-notes-summary">
+                        {{#if notes.length}}
+                            {{#each notes}}
+                            <div class="note-card-row {{#if isToday}}is-today-note{{/if}}">
+                                <div class="note-card-body">
+                                    <span class="note-time-tag">{{shortDate}}</span> | 
+                                    <span class="note-text-content">{{event_note}}</span>
+                                </div>
+                            </div>
+                            {{/each}}
+                        {{else}}
+                            <span class="text-muted small">本週尚無活動備註。</span>
+                        {{/if}}
+                    </div>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </script>
 

@@ -195,6 +195,8 @@ function renderWeekView() {
         const currentDay = currentWeekStart.clone().add(i, 'days');
         const dateStr = currentDay.format("YYYY-MM-DD");
         const dayEvents = eventsData[dateStr] || [];
+        
+        // 使用統一處理過濾邏輯，這會自動把備註填入 allFilteredNotes
         let filtered = processEvents(dayEvents, dateStr, todayStr, allFilteredNotes);
 
         days.push({
