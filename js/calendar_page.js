@@ -10,65 +10,39 @@ function escapeHTML(str) {
 }
 
 /* --- 2. 全域變數 --- */
-var ym = moment().format("YYYY-MM");
-var eventsData = {};
-var currentViewEvent = null;
-var filterLocation = "";
-var currentView = "month"; // 預設月檢視
-var currentWeekStart = moment().startOf('week'); // 週檢視的起點
+let ym = moment().format("YYYY-MM");
+let eventsData = {};
+let currentViewEvent = null;
+let filterLocation = "";
+let currentView = "month"; 
+let currentWeekStart = moment().startOf('week');
 
 /* --- 3. 頁面初始化與監聽 --- */
-$(function () {
+document.addEventListener('DOMContentLoaded', function () {
     initscal(ym);
 
     // 視圖切換：月
-    $(document).on("click", "#viewMonth", function () {
+    document.getElementById('viewMonth')?.addEventListener('click', function () {
         currentView = "month";
-        $(".btn-group .btn").removeClass("active");
-        $(this).addClass("active");
+        updateActiveButton(this);
         renderCalendar();
     });
 
     // 視圖切換：週
-    $(document).on("click", "#viewWeek", function () {
+    document.getElementById('viewWeek')?.addEventListener('click', function () {
         currentView = "week";
-        $(".btn-group .btn").removeClass("active");
-        $(this).addClass("active");
+        updateActiveButton(this);
         renderCalendar();
     });
 
-    // 導覽控制
-    $(document).on("click", "#calNext", function () {
+    // 導覽控制 (上一個)
+    document.getElementById('calLast')?.addEventListener('click', function () {
         if (currentView === "month") {
-            // 月模式：直接加一個月並重新抓取
-            ym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
-            initscal(ym);
-        } else {
-            // 週模式：
-            currentWeekStart.add(1, 'weeks');
-            let newYM = currentWeekStart.format("YYYY-MM");
-
-            // 【關鍵檢查】：如果新的一週所在的月份與目前資料月份不同，就重新抓資料
-            if (newYM !== ym) {
-                ym = newYM;
-                initscal(ym);
-            } else {
-                renderCalendar(); // 同月份，直接重畫即可
-            }
-        }
-    });
-
-    $(document).on("click", "#calLast", function () {
-        if (currentView === "month") {
-            // 月模式：減一個月
             ym = moment(ym + "-01").subtract(1, 'months').format("YYYY-MM");
             initscal(ym);
         } else {
-            // 週模式：
             currentWeekStart.subtract(1, 'weeks');
-            let newYM = currentWeekStart.format("YYYY-MM");
-
-            // 【關鍵檢查】：跨月時重新抓取
+            const newYM = currentWeekStart.format("YYYY-MM");
             if (newYM !== ym) {
                 ym = newYM;
                 initscal(ym);
@@ -78,61 +52,131 @@ $(function () {
         }
     });
 
-    $(document).on("click", "#calNow", function () {
+    // 導覽控制 (下一個)
+    document.getElementById('calNext')?.addEventListener('click', function () {
+        if (currentView === "month") {
+            ym = moment(ym + "-01").add(1, 'months').format("YYYY-MM");
+            initscal(ym);
+        } else {
+            currentWeekStart.add(1, 'weeks');
+            const newYM = currentWeekStart.format("YYYY-MM");
+            if (newYM !== ym) {
+                ym = newYM;
+                initscal(ym);
+            } else {
+                renderCalendar();
+            }
+        }
+    });
+
+    // 回到今天
+    document.getElementById('calNow')?.addEventListener('click', function () {
         ym = moment().format("YYYY-MM");
         currentWeekStart = moment().startOf('week');
         initscal(ym);
     });
 
     // 地點過濾
-    $(document).on("change", "#locationFilter", function () {
-        filterLocation = $(this).val();
+    document.getElementById('locationFilter')?.addEventListener('change', function () {
+        filterLocation = this.value;
         renderCalendar();
     });
 
-    // 儲存與更新
-    $(document).on("click", "#saveEventBtn", function () {
-        let formData = $("#addEventForm").serialize();
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-        formData += `&csrf_token=${csrfToken}`;
+    // 儲存與更新 (使用 Fetch API)
+    document.getElementById('saveEventBtn')?.addEventListener('click', async function () {
+        const form = document.getElementById('addEventForm');
+        const formData = new FormData(form);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+        formData.append('csrf_token', csrfToken);
 
-        $.ajax({
-            url: 'api/save_event.php',
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function (response) {
-                if (response.rs == "1") {
-                    $('#addEventModal').modal('hide');
-                    alert("儲存成功");
-                    initscal(ym);
+        try {
+            const response = await fetch('api/save_event.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.rs == "1") {
+                hideModal('addEventModal');
+                alert("儲存成功");
+                initscal(ym);
+            } else {
+                alert(result.msg || "儲存失敗");
+            }
+        } catch (error) {
+            console.error('Error saving event:', error);
+        }
+    });
+
+    // 編輯與刪除按鈕 (放在 Modal 內，使用委派或直接監聽)
+    document.getElementById('btnEditInView')?.addEventListener('click', function() {
+        if (!currentViewEvent) return;
+        hideModal('viewEventModal');
+        
+        setTimeout(() => {
+            const d = currentViewEvent;
+            document.querySelector("#addEventModal .modal-title").textContent = "編輯事件";
+            document.getElementById('addEventForm').reset();
+
+            document.getElementById('event_id_input').value = d.event_id;
+            document.querySelector("input[name='event_publisher']").value = d.event_publisher || '';
+            document.querySelector("input[name='event_title']").value = d.event_title || '';
+            document.querySelector("input[name='event_start_date']").value = d.event_start_date.replace(" ", "T").substring(0, 16);
+            document.querySelector("input[name='event_end_date']").value = d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "";
+            document.querySelector("input[name='event_location']").value = d.event_location || '';
+            document.querySelector("input[name='event_lector']").value = d.event_lector || '';
+            document.querySelector("input[name='event_organizer']").value = d.event_organizer || '';
+            document.querySelector("input[name='event_implementer']").value = d.event_implementer || '';
+            document.querySelector("textarea[name='event_note']").value = d.event_note || '';
+
+            showModal('addEventModal');
+        }, 400);
+    });
+
+    document.getElementById('btnDeleteInView')?.addEventListener('click', async function() {
+        if (!currentViewEvent) return;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+        if (confirm(`您確定要刪除「${currentViewEvent.event_title}」嗎？`)) {
+            const formData = new URLSearchParams();
+            formData.append('event_id', currentViewEvent.event_id);
+            formData.append('csrf_token', csrfToken);
+
+            const response = await fetch('api/delete_event.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.rs == "1") {
+                hideModal('viewEventModal');
+                // 這裡假設您有引用 sweetalert，若無可改回 alert
+                if (typeof showSwal === 'function') {
+                    showSwal("刪除成功", true, "", () => initscal(ym));
                 } else {
-                    alert(response.msg || "儲存失敗");
+                    alert("刪除成功");
+                    initscal(ym);
                 }
             }
-        });
+        }
     });
 });
 
 /* --- 4. 核心渲染流程 --- */
 
-// A. 抓取資料
-function initscal(InYM) {
+async function initscal(InYM) {
     ym = InYM;
-    $.ajax({
-        url: 'api/get_events.php',
-        type: 'GET',
-        data: { ym: InYM },
-        dataType: 'json',
-        success: function (events) {
-            eventsData = events; // 更新全域資料庫
-            renderCalendar();    // 執行重繪
-        }
-    });
+    try {
+        const response = await fetch(`api/get_events.php?ym=${InYM}`);
+        eventsData = await response.json();
+        renderCalendar();
+    } catch (error) {
+        console.error('Error fetching events:', error);
+    }
 }
 
-// B. 渲染派發中心 (您原本缺少的)
 function renderCalendar() {
+    updateNavigationButtons();
     if (currentView === "month") {
         renderMonthView();
     } else {
@@ -140,7 +184,6 @@ function renderCalendar() {
     }
 }
 
-// C. 月檢視渲染
 function renderMonthView() {
     const startOfMonth = moment(ym + "-01");
     const daysInMonth = startOfMonth.daysInMonth();
@@ -151,12 +194,10 @@ function renderMonthView() {
     let currentCells = [];
     let allFilteredNotes = [];
 
-    // 補空的前面格子
     for (let i = 0; i < firstDayOfWeek; i++) {
         currentCells.push({ isMainMonth: false });
     }
 
-    // 填充日期
     for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = startOfMonth.clone().date(i).format("YYYY-MM-DD");
         const dayEvents = eventsData[dateStr] || [];
@@ -172,19 +213,17 @@ function renderMonthView() {
         }
     }
 
-    // 補後面的空格子
     if (currentCells.length > 0) {
         while (currentCells.length < 7) currentCells.push({ isMainMonth: false });
         rows.push({ cells: currentCells });
     }
 
-    const source = $("#calendar-template").html();
+    const source = document.getElementById("calendar-template").innerHTML;
     const template = Handlebars.compile(source);
-    $("#tb").html(template({ rows: rows, notes: allFilteredNotes }));
-    $("#displayYM").text(ym);
+    document.getElementById("tb").innerHTML = template({ rows: rows, notes: allFilteredNotes });
+    document.getElementById("displayYM").textContent = ym;
 }
 
-// D. 週檢視渲染
 function renderWeekView() {
     const todayStr = moment().format("YYYY-MM-DD");
     const weekNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
@@ -195,8 +234,6 @@ function renderWeekView() {
         const currentDay = currentWeekStart.clone().add(i, 'days');
         const dateStr = currentDay.format("YYYY-MM-DD");
         const dayEvents = eventsData[dateStr] || [];
-        
-        // 使用統一處理過濾邏輯，這會自動把備註填入 allFilteredNotes
         let filtered = processEvents(dayEvents, dateStr, todayStr, allFilteredNotes);
 
         days.push({
@@ -204,13 +241,12 @@ function renderWeekView() {
         });
     }
 
-    const source = $("#week-template").html();
+    const source = document.getElementById("week-template").innerHTML;
     const template = Handlebars.compile(source);
-    $("#tb").html(template({ days: days, notes: allFilteredNotes }));
-    $("#displayYM").text(currentWeekStart.format("YYYY-MM-DD") + " 週");
+    document.getElementById("tb").innerHTML = template({ days: days, notes: allFilteredNotes });
+    document.getElementById("displayYM").textContent = currentWeekStart.format("YYYY-MM-DD") + " 週";
 }
 
-// E. 統一處理過濾邏輯
 function processEvents(dayEvents, dateStr, todayStr, noteArray) {
     return dayEvents.map((item, idx) => ({ ...item, originalIndex: idx }))
         .filter(item => filterLocation === "" || (item.event_location && item.event_location.includes(filterLocation)))
@@ -230,15 +266,16 @@ function processEvents(dayEvents, dateStr, todayStr, noteArray) {
         });
 }
 
-/* --- 5. Modal 控制 (全域) --- */
+/* --- 5. Modal 控制 (原生 BS5 API) --- */
 function openAddModal(date) {
-    $("#addEventModal .modal-title").text("新增活動");
+    document.querySelector("#addEventModal .modal-title").textContent = "新增活動";
     const form = document.getElementById('addEventForm');
     if (form) form.reset();
-    $("#event_id_input").val("");
-    $("input[name='event_start_date']").val(date + "T08:00");
-    $("input[name='event_end_date']").val(date + "T17:00");
-    $('#addEventModal').modal('show');
+    document.getElementById("event_id_input").value = "";
+    document.querySelector("input[name='event_start_date']").value = date + "T08:00";
+    document.querySelector("input[name='event_end_date']").value = date + "T17:00";
+    
+    showModal('addEventModal');
 }
 
 function viewEventDetail(date, index) {
@@ -246,13 +283,12 @@ function viewEventDetail(date, index) {
     const eventData = eventsData[date][index];
     currentViewEvent = eventData;
 
-    const source = $("#event-detail-template").html();
+    const source = document.getElementById("event-detail-template").innerHTML;
     const template = Handlebars.compile(source);
-    // 使用 moment 格式化時間，排除秒數
+    
     const startTime = eventData.event_start_date ? moment(eventData.event_start_date).format('YYYY-MM-DD HH:mm') : '';
     const endTime = eventData.event_end_date ? moment(eventData.event_end_date).format('YYYY-MM-DD HH:mm') : '';
 
-    // 這裡建立 Handlebars 需要的 context
     const context = {
         fields: [
             { label: '發佈人', value: eventData.event_publisher, isHtml: false },
@@ -265,98 +301,41 @@ function viewEventDetail(date, index) {
             { label: '承辦人', value: eventData.event_implementer, isHtml: false },
             { label: '承辦單位', value: eventData.event_organizer, isHtml: false },
             { label: '備註', value: eventData.event_note, isHtml: false }
-
         ]
     };
 
-    $("#viewEventContent").html(template(context));
-    $('#viewEventModal').modal('show');
+    document.getElementById("viewEventContent").innerHTML = template(context);
+    showModal('viewEventModal');
 }
-// 編輯活動
-// 修正後的編輯活動監聽器
-$(document).on("click", "#btnEditInView", function () {
-    if (!currentViewEvent) return;
-    
-    // 1. 隱藏詳情視窗
-    $('#viewEventModal').modal('hide');
-    
-    // 2. 延遲一下再開，防止遮罩卡死
-    setTimeout(function() {
-        $("#addEventModal .modal-title").text("編輯事件");
-        $("#addEventForm")[0].reset();
-        
-        const d = currentViewEvent;
-        $("#event_id_input").val(d.event_id);
-        $("input[name='event_publisher']").val(d.event_publisher);
-        $("input[name='event_title']").val(d.event_title);
-        $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T").substring(0, 16));
-        $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "");
-        $("input[name='event_location']").val(d.event_location);
-        $("input[name='event_lector']").val(d.event_lector);
-        $("input[name='event_organizer']").val(d.event_organizer);
-        $("input[name='event_implementer']").val(d.event_implementer);
-        $("textarea[name='event_note']").val(d.event_note);
 
-        // 3. 改用 jQuery 開啟
-        $('#addEventModal').modal('show');
-    }, 400);
-});
-
-// 刪除活動
-// --- 4. 刪除邏輯 ---
-$(document).on("click", "#btnDeleteInView", function () {
-    if (!currentViewEvent) return;
-    const csrfToken = $('meta[name="csrf-token"]').attr('content');
-    if (confirm("您確定要刪除「" + escapeHTML(currentViewEvent.event_title) + "」嗎？")) {
-        $.ajax({
-            url: 'api/delete_event.php',
-            type: 'POST',
-            data: {
-                event_id: currentViewEvent.event_id,
-                csrf_token: csrfToken
-            },
-            dataType: 'json',
-            success: function (response) {
-                if (response.rs == "1") {
-                    var modalEl = document.getElementById('viewEventModal');
-                    bootstrap.Modal.getInstance(modalEl).hide();
-                    $('.modal-backdrop').remove();
-                    showSwal("刪除成功", true, "", function () {
-                        initscal(ym);
-                    });
-                } else {
-                    showSwal(response.msg || "刪除失敗", false);
-                }
-            }
-        });
-    }
-});
-
-/* 因應月或週檢視狀態，動態 DOM 文字替換(上個月/上週/下個月/下週) */
-/* --- 新增：更新導覽按鈕文字的函式 --- */
+/* --- 6. 輔助 UI 函數 --- */
 function updateNavigationButtons() {
     const isMonth = (currentView === "month");
+    const suffix = isMonth ? "個月" : "週";
     
-    // 選取按鈕並替換 HTML 內容 (保留圖示)
-    if (isMonth) {
-        $("#calLast").html('<i class="fa-solid fa-chevron-left"></i> 上個月');
-        $("#calNext").html('下個月 <i class="fa-solid fa-chevron-right"></i>');
-        $("#calNow").text('本月');
-    } else {
-        $("#calLast").html('<i class="fa-solid fa-chevron-left"></i> 上一週');
-        $("#calNext").html('下一週 <i class="fa-solid fa-chevron-right"></i>');
-        $("#calNow").text('本週');
+    document.getElementById("calLast").innerHTML = `<i class="fa-solid fa-chevron-left"></i> 上一${suffix}`;
+    document.getElementById("calNext").innerHTML = `下一${suffix} <i class="fa-solid fa-chevron-right"></i>`;
+    document.getElementById("calNow").textContent = `本${suffix}`;
+}
+
+function updateActiveButton(activeBtn) {
+    document.querySelectorAll(".btn-group .btn").forEach(btn => btn.classList.remove("active"));
+    activeBtn.classList.add("active");
+}
+
+// 封裝 BS5 Modal 原生呼叫，防止 ARIA 衝突
+function showModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const inst = bootstrap.Modal.getOrCreateInstance(el);
+        inst.show();
     }
 }
 
-/* --- 修改：渲染派發中心 --- */
-function renderCalendar() {
-    // 每次渲染時都更新一次按鈕文字
-    updateNavigationButtons();
-
-    if (currentView === "month") {
-        renderMonthView();
-    } else {
-        renderWeekView();
+function hideModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        const inst = bootstrap.Modal.getInstance(el);
+        if (inst) inst.hide();
     }
 }
