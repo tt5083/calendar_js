@@ -260,25 +260,33 @@ function viewEventDetail(date, index) {
     $('#viewEventModal').modal('show');
 }
 // 編輯活動
+// 修正後的編輯活動監聽器
 $(document).on("click", "#btnEditInView", function () {
     if (!currentViewEvent) return;
-    var vModalEl = document.getElementById('viewEventModal');
-    bootstrap.Modal.getInstance(vModalEl).hide();
-    $("#addEventModal .modal-title").text("編輯事件");
-    $("#addEventForm")[0].reset();
-    const d = currentViewEvent;
-    $("#event_id_input").val(d.event_id);
-    $("input[name='event_publisher']").val(d.event_publisher);
-    $("input[name='event_title']").val(d.event_title);
-    $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T").substring(0, 16));
-    $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "");
-    $("input[name='event_location']").val(d.event_location);
-    $("input[name='event_lector']").val(d.event_lector);
-    $("input[name='event_organizer']").val(d.event_organizer); // 原本是 .organizer 修正為 .event_organizer
-    $("input[name='event_implementer']").val(d.event_implementer);
-    $("textarea[name='event_note']").val(d.event_note);
-    var addModal = new bootstrap.Modal(document.getElementById('addEventModal'));
-    addModal.show();
+    
+    // 1. 隱藏詳情視窗
+    $('#viewEventModal').modal('hide');
+    
+    // 2. 延遲一下再開，防止遮罩卡死
+    setTimeout(function() {
+        $("#addEventModal .modal-title").text("編輯事件");
+        $("#addEventForm")[0].reset();
+        
+        const d = currentViewEvent;
+        $("#event_id_input").val(d.event_id);
+        $("input[name='event_publisher']").val(d.event_publisher);
+        $("input[name='event_title']").val(d.event_title);
+        $("input[name='event_start_date']").val(d.event_start_date.replace(" ", "T").substring(0, 16));
+        $("input[name='event_end_date']").val(d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "");
+        $("input[name='event_location']").val(d.event_location);
+        $("input[name='event_lector']").val(d.event_lector);
+        $("input[name='event_organizer']").val(d.event_organizer);
+        $("input[name='event_implementer']").val(d.event_implementer);
+        $("textarea[name='event_note']").val(d.event_note);
+
+        // 3. 改用 jQuery 開啟
+        $('#addEventModal').modal('show');
+    }, 400);
 });
 
 // 刪除活動
@@ -310,3 +318,32 @@ $(document).on("click", "#btnDeleteInView", function () {
         });
     }
 });
+
+/* 因應月或週檢視狀態，動態 DOM 文字替換(上個月/上週/下個月/下週) */
+/* --- 新增：更新導覽按鈕文字的函式 --- */
+function updateNavigationButtons() {
+    const isMonth = (currentView === "month");
+    
+    // 選取按鈕並替換 HTML 內容 (保留圖示)
+    if (isMonth) {
+        $("#calLast").html('<i class="fa-solid fa-chevron-left"></i> 上個月');
+        $("#calNext").html('下個月 <i class="fa-solid fa-chevron-right"></i>');
+        $("#calNow").text('本月');
+    } else {
+        $("#calLast").html('<i class="fa-solid fa-chevron-left"></i> 上一週');
+        $("#calNext").html('下一週 <i class="fa-solid fa-chevron-right"></i>');
+        $("#calNow").text('本週');
+    }
+}
+
+/* --- 修改：渲染派發中心 --- */
+function renderCalendar() {
+    // 每次渲染時都更新一次按鈕文字
+    updateNavigationButtons();
+
+    if (currentView === "month") {
+        renderMonthView();
+    } else {
+        renderWeekView();
+    }
+}
