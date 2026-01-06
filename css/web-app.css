@@ -1,80 +1,83 @@
 /* ==========================================================================
-   1. 基礎字體與全域樣式
+   【1. 系統變數定義】
+   定義全域顏色，方便一鍵更換主題，並確保全站顏色一致
    ========================================================================== */
-body, input, button, textarea, select {
-    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "微軟正黑體", "Microsoft JhengHei", sans-serif;
-    font-size: 15px;
+:root {
+    --cal-primary: #1a73e8;         /* Google 藍 */
+    --cal-primary-dark: #1557b0;
+    --cal-primary-light: #e8f0fe;
+    
+    --cal-today-bg: #fff9db;        /* 今天格子背景（淺黃） */
+    --cal-today-accent: #fbc02d;    /* 今天裝飾色（深黃/橘） */
+    
+    --cal-border: #dee2e6;
+    --cal-bg-light: #f8f9fa;
+    --cal-text-main: #3c4043;
+    --cal-text-light: #70757a;
 }
 
 /* ==========================================================================
-   2. 日曆表格結構 (解決格線不一問題)
+   【2. 基礎字體與全域樣式】
    ========================================================================== */
-#tb .table {
-    border-collapse: collapse; /* 重要：合併邊框確保線條一致 */
-    table-layout: fixed;      /* 重要：確保 7 欄等寬 */
-    width: 100%;
-    border: 1px solid #dee2e6;
-    margin-bottom: 0;
+body, input, button, textarea, select {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "微軟正黑體", sans-serif;
+    font-size: 15px;
 }
 
-/* 統一設定所有格子的邊框 */
-#tb td, #tb th {
-    border: 1px solid #dee2e6 !important;
+#tb h3 {
+    color: var(--cal-text-main);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   【3. 日曆表格結構】
+   ========================================================================== */
+#tb .table {
+    border-collapse: collapse;
+    table-layout: fixed; /* 確保 7 欄等寬 */
+    width: 100%;
+    border: 1px solid var(--cal-border);
+}
+
+#tb th, #tb td {
+    border: 1px solid var(--cal-border) !important;
     padding: 0;
     vertical-align: top;
 }
 
-/* 日曆標題列 (日一二...) */
 #tb th {
-    background-color: #f8f9fa;
+    background-color: var(--cal-bg-light);
     padding: 10px 0;
     font-weight: 600;
-    text-align: center;       /* 加入這一行：文字水平置中 */
-    vertical-align: middle;   /* 加入這一行：文字垂直置中 */
-    border: 1px solid #dee2e6 !important;
+    text-align: center;
+    vertical-align: middle;
 }
 
 /* ==========================================================================
-   3. 日曆格子 (Cells) 狀態樣式
+   【4. 日曆格子 (Cells) 與日期標記】
    ========================================================================== */
-
-/* 一般日期格子 */
-#tb td.calendar_cell {
+.calendar_cell {
     background-color: #ffffff;
-    /* 固定高度移除,將垂直高度改為適應性
-    height: 110px; */
-    /* min-height: 110px; */
-    height: 110px !important; /* 直接設定 height，內容多時表格會自動撐開 */
+    height: 110px !important; /* 固定基礎高度，內容多時自動撐開 */
     transition: background-color 0.15s ease;
     cursor: pointer;
-    vertical-align: top; /* 確保內容從頂部開始排 */
 }
 
-/* 滑鼠懸停效果 */
-#tb td.calendar_cell:hover {
-    background-color: #f0f4f9 !important; /* 稍微明顯的粉藍色 */
+.calendar_cell:hover {
+    background-color: #f0f4f9 !important;
 }
 
-/* 修正：今天的高亮背景 - 使用較明顯的淺橘黃色 */
+/* 今天的高亮 */
 .today-highlight {
-    background-color: #fff9db !important; /* 明顯的黃色底 */
-    position: relative;
+    background-color: var(--cal-today-bg) !important;
 }
 
-/* 確保格子的層級正確 */
-.calendar_cell {
-    transition: background-color 0.2s;
-    cursor: pointer;
-}
-
-/* 非本月空白格子的樣式 */
 .cell-empty {
-    background-color: #f8f9fa !important;
+    background-color: var(--cal-bg-light) !important;
 }
 
-/* ==========================================================================
-   4. 日期數字與標記 (Date Labels)
-   ========================================================================== */
+/* 日期圓圈標記 */
 .date-label {
     padding-top: 8px;
     height: 40px;
@@ -83,307 +86,135 @@ body, input, button, textarea, select {
     align-items: center;
 }
 
-/* 今天的圓圈標記 */
 .today-circle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
-    background-color: #1a73e8; /* Google 藍 */
+    background-color: var(--cal-primary);
     color: #ffffff !important;
     border-radius: 50%;
     font-size: 13px;
-    font-weight: 500;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* ==========================================================================
-   5. 活動事項 (Event Items)
+   【5. 活動事項 (Event Items)】
    ========================================================================== */
-
-/* 活動容器優化：移除 max-height 與 overflow */
-[id^='m_'] {
-    padding: 0 4px 5px 4px;
-    /* max-height: 70px; <--- 移除限制高度 */
-    /* overflow-y: auto; <--- 移除捲軸 */
-    height: auto;
-}
-
-/* 活動條樣式 */
-/* 修改 .event-title 樣式 */
-/* 修改 .event-title 樣式 */
-.event-title {
+.event-item-box {
     display: block;
     padding: 4px 8px;
-    margin: 2px 4px;
+    margin: 4px;
     border-radius: 4px;
-    background-color: #e8f0fe; /* 極淺藍背景 */
-    color: #1967d2;            /* 飽和藍文字 */
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.4;
-    border-left: 3px solid #1a73e8; /* 左側藍色色條，增加辨識度 */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    background-color: var(--cal-primary-light);
+    color: var(--cal-primary-dark);
+    border-left: 3px solid var(--cal-primary);
     transition: background-color 0.2s;
-}
-
-.event-title:hover {
-    background-color: #d2e3fc; /* 懸停時顏色加深 */
-    color: #174ea6;
-}
-
-/* 客製化捲軸樣式 */
-[id^='m_']::-webkit-scrollbar {
-    width: 4px;
-}
-[id^='m_']::-webkit-scrollbar-thumb {
-    background: #dadce0;
-    border-radius: 4px;
-}
-
-/* ==========================================================================
-   6. 其他組件 (Modal 等)
-   ========================================================================== */
-.list-group-item-action:hover {
-    background-color: #f1f3f4;
-}
-
-/* 讓日曆標題按鈕更有質感,像Google 日曆，去除變長方框 */
-#tb .btn-sm {
-    padding: 5px 15px;
-    border-radius: 20px; /* 圓角膠囊型按鈕 */
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-#tb h3 {
-    color: #3c4043; /* 深灰色字體，比較不刺眼 */
-    font-size: 1.5rem;
-}
-.edit-event-trigger:hover .fw-bold {
-    text-decoration: underline;
-    color: #0056b3 !important;
-}
-
-/* test */
-/* 讓輸入框點擊感更直覺 */
-input[type="datetime-local"], 
-input.datetimepicker {
+    line-height: 1.4;
     cursor: pointer;
 }
 
-/* 備註欄位標題格 (左側) */
+.event-item-box:hover {
+    background-color: #d2e3fc;
+}
+
+.event-time-row { font-size: 12px; font-weight: 700; }
+.event-name-row { font-size: 13px; word-break: break-all; }
+
+/* ==========================================================================
+   【6. 備註區域 - 重點：反色提醒】
+   ========================================================================== */
 .notes-label-cell {
-    background-color: #f8f9fa;
-    color: #333;
-    font-size: 18px;          /* 字體加大 */
-    /* font-weight: 800; */          /* 字體加粗 */
-    text-align: center;        /* 水平置中 */
-    vertical-align: top !important; /* 垂直置中 */
-    white-space: nowrap;
+    background-color: var(--cal-bg-light);
+    font-size: 18px;
+    text-align: center;
+    width: 100px;
+    padding-top: 20px !important;
 }
 
-/* 備註內容格：改為靠左，讓內容水平排列 */
-.notes-content-cell {
-    text-align: left !important;
-    vertical-align: middle !important;
-    padding: 10px 15px !important;
-    background-color: #fff;
-}
-
-/* 備註外層容器 start*/
-#month-notes-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* 每一列之間的間距 */
-}
-
-/* 卡片式列樣式 */
 .note-card-row {
     display: flex;
     background: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--cal-border);
     border-radius: 4px;
+    margin-bottom: 8px;
     overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
 }
 
-/* 左側裝飾色條 */
 .note-card-sidebar {
     width: 6px;
-    background-color: #0d6efd; /* 您可以換成喜歡的顏色 */
+    background-color: var(--cal-primary);
     flex-shrink: 0;
 }
 
-/* 內容區塊佈局 */
 .note-card-body {
     display: flex;
-    align-items: center; /* 垂直置中 */
+    align-items: center;
     padding: 10px 15px;
     width: 100%;
 }
 
-/* --- 【手動微調處】 --- */
 .note-time-tag {
     font-weight: bold;
-    color: #0d6efd;
-    text-decoration: underline;
-    font-size: 15px;
-    
-    /* 調整時間寬度，確保後方文字對齊 */
-    min-width: 90px; 
-    display: inline-block;
+    color: var(--cal-primary);
+    min-width: 90px;
 }
 
-.note-divider {
-    color: #ccc;
-    margin: 0 7px; /* 調整時間與備註之間的間隙 */
-}
-
-.note-text-content {
-    color: #444;
-    font-size: 15px;
-    line-height: 1.5;
-    word-break: break-all;
-}
-/* 備註外層容器 End*/
-
-/* 當天備註的反黃樣式 */
+/* --- 【今天備註的反色樣式】 --- */
+/* 這裡統一處理：不再區分月(粗體)或週(藍色)，全部改為強烈反白提醒 */
 .note-card-row.is-today-note {
-    background-color: #fff9c4 !important; /* 淺黃色背景 */
-    border: 1px solid #fbc02d;           /* 深黃色邊框 */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 加強陰影讓它跳出來 */
+    background-color: var(--cal-primary) !important; /* 背景變深藍 */
+    color: #ffffff !important;                      /* 文字變白色 */
+    border-color: var(--cal-primary-dark) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);                    /* 輕微浮起感 */
 }
 
-/* 當天備註的左側色條改為橘黃色，更明顯 */
+/* 反色狀態下的內部元件顏色修正 */
+.note-card-row.is-today-note .note-time-tag,
+.note-card-row.is-today-note .note-text-content,
+.note-card-row.is-today-note .note-divider {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
 .note-card-row.is-today-note .note-card-sidebar {
-    background-color: #fbc02d; 
+    background-color: var(--cal-today-accent) !important; /* 側邊條變橘黃色，極醒目 */
 }
 
-/* 當天備註的時間文字也可以稍微改色 */
-.note-card-row.is-today-note .note-time-tag {
-    color: #f57f17; 
-}
-
-/* 日期格子內的活動標題自動折行 */
-.event-item-box {
-    display: block;
-    padding: 3px 6px;
-    margin: 2px 4px;
-    border-radius: 4px;
-    background-color: #e8f0fe; /* 淺藍背景 */
-    color: #1967d2;            /* 深藍文字 */
-    border-left: 3px solid #1a73e8; /* 左側藍色色條 */
-    cursor: pointer;
-    transition: background-color 0.2s;
-    line-height: 1.3;
-    overflow: hidden;
-    height: auto;
-    min-height: 40px;
-}
-
-.event-item-box:hover {
-    background-color: #d2e3fc; /* 滑鼠移入時加深 */
-    color: #174ea6;
-    display: block;
-    /* 修改這裡：將 2px 改大（例如 6px），增加上下活動間的距離 */
-    margin: 6px 4px;
-}
-
-/* 第一行：時間的樣式 */
-.event-time-row {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 1px;
-}
-
-/* 第二行：標題與地點的樣式 */
-.event-name-row {
-    font-size: 13px;
-    font-weight: 500;
-    display: block;
-    white-space: normal;       /* 允許文字自動換行 (原為 nowrap) */
-    word-break: break-all;     /* 遇到長英文或網址時強制斷行 */
-    overflow: visible;         /* 確保內容不被裁剪 */
-    text-overflow: clip;       /* 移除省略號效果 */
-    line-height: 1.4;          /* 增加行高，避免換行後文字太擠 */
-    /* white-space: nowrap;  */     /* 強制單行 */
-    /* overflow: hidden;  */        /* 隱藏超出部分 */
-    /* text-overflow: ellipsis; */  /* 顯示 ... */
-    
-}
-
-/* 如果是「今天」的格子，活動改為橘色系 (選配) */
-.today-highlight .event-item-box {
-    background-color: #fef7e0; 
-    border-left-color: #fbbc04;
-    color: #b06000;
-}
-/* 詳情視窗內的欄位列對齊 */
-#viewEventContent .row {
-    margin: 0;
-    display: flex;
-}
-
-#viewEventContent .col-3 {
-    /* 確保左側標籤背景色延伸到底部 */
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    background-color: #f8f9fa !important;
-}
-
-#viewEventContent .col-9 {
-    display: flex;
-    align-items: center;
-    background-color: #ffffff;
-}
-
-/* 讓 Modal 內容不要有預設內距，方便表格貼齊 */
-#viewEventModal .modal-body {
-    padding: 0;
-}
 /* ==========================================================================
-   7. 活動詳情視窗 (View Event Modal) 專屬修正
+   【7. 活動詳情視窗 (View Event Modal)】
    ========================================================================== */
+#viewEventModal .modal-body { padding: 0; }
 
-/* 強制調整詳情視窗內的表格佈局，不被日曆主表格的 fixed 樣式影響 */
 #viewEventContent .table {
-    table-layout: auto !important; 
+    table-layout: auto !important;
     border-collapse: separate !important;
-    border-spacing: 0;
-    width: 100% !important;
+    margin: 0;
 }
 
-/* 欄位名稱 (左側 th) */
 #viewEventContent th {
-    background-color: #f1f3f4 !important; /* 稍微深一點的灰色，更有區隔感 */
-    color: #3c4043 !important;
-    font-weight: 700 !important;
-    text-align: right !important;        /* 文字靠右對齊冒號 */
-    vertical-align: middle !important;
-    padding: 12px 15px !important;       /* 強制加入內距，避免文字消失 */
-    width: 130px !important;             /* 給予固定寬度確保名稱不換行 */
-    white-space: nowrap !important;
-    border: 1px solid #dee2e6 !important;
+    background-color: #f1f3f4 !important;
+    color: var(--cal-text-main);
+    text-align: right !important;
+    padding: 12px 15px !important;
+    width: 130px;
+    border-bottom: 1px solid var(--cal-border) !important;
 }
 
-/* 欄位數值 (右側 td) */
 #viewEventContent td {
-    background-color: #ffffff !important;
-    color: #202124 !important;
-    text-align: left !important;
-    vertical-align: middle !important;
-    padding: 12px 15px !important;       /* 保持與標題一致的對齊感 */
-    border: 1px solid #dee2e6 !important;
+    padding: 12px 15px !important;
+    border-bottom: 1px solid var(--cal-border) !important;
 }
 
-/* 備註區塊微調 */
-#viewEventContent .border.rounded.bg-light {
-    background-color: #f8f9fa !important;
-    border: 1px solid #dadce0 !important;
-    margin-top: 5px;
+/* ==========================================================================
+   【8. UI 按鈕樣式 (Google Style)】
+   ========================================================================== */
+#tb .btn-sm, #calLast, #calNext, #calNow {
+    padding: 5px 18px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.2s;
 }
