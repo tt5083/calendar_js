@@ -100,7 +100,7 @@ $csrf_token = $_SESSION['csrf_token'];
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label text-primary">開始時間 <span class="text-danger">*</span></label>
-                                <input type="datetime-local" class="form-control border-primary" name="event_start_date" required>
+                                <input type="datetime-local" class="form-control border-primary" name="event_start_date" onclick="this.showPicker()" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">結束時間</label>
