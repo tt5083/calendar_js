@@ -28,6 +28,11 @@ $csrf_token = $_SESSION['csrf_token'];
     <script src="js/calendar_page.js"></script>
 
     <link rel="shortcut icon" href="img/favicon.png">
+    <!-- 測試載入字體 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 字體 END -->
 
     <style>
         /* 補充：確保日曆格子在原生 BS5 下的高度表現 */
@@ -198,7 +203,7 @@ $csrf_token = $_SESSION['csrf_token'];
                                 {{#each notes}}
                                 <div class="note-card-row mb-1 {{#if isToday}}text-primary fw-bold{{/if}}">
                                     <span class="badge bg-secondary me-2">{{shortDate}}</span>
-                                    <span class="note-text-content small">{{event_note}}</span>
+                                    <span class="note-text-content">{{event_note}}</span>
                                 </div>
                                 {{/each}}
                             {{else}}
@@ -248,7 +253,7 @@ $csrf_token = $_SESSION['csrf_token'];
                             {{#each notes}}
                             <div class="note-card-row mb-1 {{#if isToday}}text-primary fw-bold{{/if}}">
                                 <span class="badge bg-info me-2">{{shortDate}}</span>
-                                <span class="small">{{event_note}}</span>
+                                <span class="note-text-content">{{event_note}}</span>
                             </div>
                             {{/each}}
                         {{else}}
