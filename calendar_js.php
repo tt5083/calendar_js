@@ -54,29 +54,39 @@ $csrf_token = $_SESSION['csrf_token'];
 </head>
 
 <body>
-    <div class='d-flex align-items-center justify-content-center my-4'>
-        <button id='calLast' class='btn btn-outline-info btn-sm me-3'>
-            <i class="fa-solid fa-chevron-left"></i> 上個月
-        </button>
-        <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 150px; text-align: center;' id="displayYM"></h3>
-        <button id='calNext' class='btn btn-outline-info btn-sm ms-3'>
-            下個月 <i class="fa-solid fa-chevron-right"></i>
-        </button>
-        <button id='calNow' class='btn btn-secondary btn-sm ms-3'>本月</button>
+    <div class='container-fluid my-4'>
+    <div class='d-flex flex-wrap align-items-center justify-content-center gap-2'>
+        
+        <div class="d-flex align-items-center justify-content-center">
+            <button id='calLast' class='btn btn-outline-info btn-sm'>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            
+            <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 120px; text-align: center; font-size: 1.25rem;' id="displayYM"></h3>
+            
+            <button id='calNext' class='btn btn-outline-info btn-sm'>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
 
-        <div class="ms-3 d-inline-block">
-            <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px;">
+        <div class="d-flex align-items-center gap-2">
+            <button id='calNow' class='btn btn-secondary btn-sm'>本月</button>
+
+            <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px; width: auto; min-width: 100px;">
                 <option value="">所有地點</option>
                 <option value="醫院">醫院</option>
                 <option value="園區">園區</option>
                 <option value="水電">水電</option>
             </select>
+
+            <div class="btn-group">
+                <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
+                <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
+            </div>
         </div>
-        <div class="btn-group ms-3">
-            <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
-            <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
-        </div>
+        
     </div>
+</div>
 
     <div id="tb" class="container-fluid"></div>
 
