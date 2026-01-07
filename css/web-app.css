@@ -161,7 +161,18 @@ body, input, button, textarea, select {
     color: var(--cal-primary);
     min-width: 90px;
 }
+/* 針對備註內容文字加大 */
+.note-text-content {
+    font-size: 17px !important; /* 您想要的字體大小 */
+    line-height: 1.6;          /* 增加行高，字大才不會擠在一起 */
+    color: #333;               /* 深灰色文字 */
+}
 
+/* 備註「日期標籤」 */
+#month-notes-summary .badge {
+    font-size: 17px; 
+    padding: 5px 10px;
+}
 /* --- 【今天備註的反色樣式】 --- */
 /* 這裡統一處理：不再區分月(粗體)或週(藍色)，全部改為強烈反白提醒 */
 .note-card-row.is-today-note {
@@ -183,7 +194,12 @@ body, input, button, textarea, select {
 .note-card-row.is-today-note .note-card-sidebar {
     background-color: var(--cal-today-accent) !important; /* 側邊條變橘黃色，極醒目 */
 }
-
+/* 當備註是「今天」時，將整列背景反黃 */
+.note-card-row.text-primary {
+    background-color: #fff9c4 !important; /* 經典明亮的淺黃色 */
+    border: 1px solid #fbc02d;           /* 深黃色邊框增加質感 */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 輕微陰影讓它跳出來 */
+}
 /* ==========================================================================
    【7. 活動詳情視窗 (View Event Modal)】
    ========================================================================== */
@@ -217,4 +233,53 @@ body, input, button, textarea, select {
     border-radius: 20px;
     font-weight: 500;
     transition: all 0.2s;
+}
+
+/* 測試載入字體 */
+/* ==========================================================================
+   【字體設定 - 繁體中文優化版】
+   ========================================================================== */
+
+:root {
+    /* 定義字體變數，方便日後管理 */
+    --font-main: 'Noto Sans TC', 
+                 -apple-system, 
+                 BlinkMacSystemFont, 
+                 "Segoe UI", 
+                 Roboto, 
+                 "Helvetica Neue", 
+                 Arial, 
+                 "Microsoft JhengHei",  /* 微軟正黑體 (Windows) */
+                 "PingFang TC",         /* 蘋方 (iOS/Mac) */
+                 "Apple LiGothic Medium", 
+                 sans-serif;
+}
+
+body {
+    /* 套用字體變數 */
+    font-family: var(--font-main);
+    
+    /* 字體渲染優化：讓文字在 Mac/iOS 上更細緻 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    /* 設定預設文字顏色與行高，提升閱讀性 */
+    color: #333;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* 針對標題與加粗文字的精細控制 */
+h1, h2, h3, h4, .fw-bold, b, strong {
+    font-weight: 700; /* 使用思源黑體的粗體 */
+    letter-spacing: 0.02em; /* 繁體中文標題稍微拉開一點字距更美觀 */
+}
+
+/* 針對備註欄位的內容字體 */
+.note-text-content {
+    font-weight: 400; /* 平時用標準體 */
+}
+
+.is-today-note .note-text-content {
+    font-weight: 500; /* 今天備註用「中黑」，比標準體顯眼但不會過粗 */
 }
