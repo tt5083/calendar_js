@@ -220,7 +220,13 @@ async function initscal(InYM) {
     ym = InYM;
     try {
         const response = await fetch(`api/get_events.php?ym=${InYM}`);
-        eventsData = await response.json();
+        const result = await response.json();
+
+        // 同步賦值：這會確保無論是在全域還是 window 下都能抓到
+        eventsData = result;
+        window.eventsData = result;
+
+        console.log("資料同步成功，日期：", InYM);
         renderCalendar();
     } catch (error) {
         console.error('Error fetching events:', error);
@@ -259,7 +265,7 @@ function renderMonthView() {
 
     for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = startOfMonth.clone().date(i).format("YYYY-MM-DD");
-        const dayEvents = eventsData[dateStr] || [];
+        const dayEvents = (window.eventsData && window.eventsData[dateStr]) ? window.eventsData[dateStr] : [];
         let filtered = processEvents(dayEvents, dateStr, todayStr, allFilteredNotes);
 
         currentCells.push({
@@ -293,9 +299,7 @@ function renderWeekView() {
     for (let i = 0; i < 7; i++) {
         const currentDay = currentWeekStart.clone().add(i, 'days');
         const dateStr = currentDay.format("YYYY-MM-DD");
-        const dayEvents = eventsData[dateStr] || [];
-        let filtered = processEvents(dayEvents, dateStr, todayStr, allFilteredNotes);
-
+        const dayEvents = (window.eventsData && window.eventsData[dateStr]) ? window.eventsData[dateStr] : []; let filtered = processEvents(dayEvents, dateStr, todayStr, allFilteredNotes);
         days.push({
             date: dateStr, dayNum: currentDay.date(), dayName: weekNames[i], isToday: dateStr === todayStr, filteredEvents: filtered
         });
@@ -342,31 +346,43 @@ function openAddModal(date) {
 }
 
 function viewEventDetail(date, index) {
-    if (!eventsData[date] || !eventsData[date][index]) return;
-    const eventData = eventsData[date][index];
-    currentViewEvent = eventData;
+    // 1. 強制從 window.eventsData 抓取資料，避免抓到 undefined 的區域變數
+    const currentData = (window.eventsData && window.eventsData[date]) ? window.eventsData[date][index] : null;
+    
+    // 如果找不到資料就跳出
+    if (!currentData) {
+        console.error("找不到活動資料:", date, index);
+        return;
+    }
 
+    // 2. 更新當前視窗使用的活動物件
+    currentViewEvent = currentData;
+
+    // 3. 準備 Handlebars 模板
     const source = document.getElementById("event-detail-template").innerHTML;
     const template = Handlebars.compile(source);
 
-    const startTime = eventData.event_start_date ? moment(eventData.event_start_date).format('YYYY-MM-DD HH:mm') : '';
-    const endTime = eventData.event_end_date ? moment(eventData.event_end_date).format('YYYY-MM-DD HH:mm') : '';
+    // 4. 格式化時間（直接使用 currentData）
+    const startTime = currentData.event_start_date ? moment(currentData.event_start_date).format('YYYY-MM-DD HH:mm') : '';
+    const endTime = currentData.event_end_date ? moment(currentData.event_end_date).format('YYYY-MM-DD HH:mm') : '';
 
+    // 5. 構建 context（將所有 eventData 替換成 currentData）
     const context = {
         fields: [
-            { label: '發佈人', value: eventData.event_publisher, isHtml: false },
-            { label: '活動類別', value: eventData.event_category, isHtml: false },
-            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(eventData.event_title)}</b>`, isHtml: true },
+            { label: '發佈人', value: currentData.event_publisher, isHtml: false },
+            { label: '活動類別', value: currentData.event_category, isHtml: false },
+            { label: '活動名稱', value: `<b class="text-primary">${escapeHTML(currentData.event_title)}</b>`, isHtml: true },
             { label: '活動開始時間', value: startTime, isHtml: false },
             { label: '活動結束時間', value: endTime, isHtml: false },
-            { label: '活動地點', value: eventData.event_location, isHtml: false },
-            { label: '講師', value: eventData.event_lector, isHtml: false },
-            { label: '承辦人', value: eventData.event_implementer, isHtml: false },
-            { label: '承辦單位', value: eventData.event_organizer, isHtml: false },
-            { label: '備註', value: eventData.event_note, isHtml: false }
+            { label: '活動地點', value: currentData.event_location, isHtml: false },
+            { label: '講師', value: currentData.event_lector, isHtml: false },
+            { label: '承辦人', value: currentData.event_implementer, isHtml: false },
+            { label: '承辦單位', value: currentData.event_organizer, isHtml: false },
+            { label: '備註', value: currentData.event_note, isHtml: false }
         ]
     };
 
+    // 6. 渲染並顯示
     document.getElementById("viewEventContent").innerHTML = template(context);
     showModal('viewEventModal');
 }
