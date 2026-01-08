@@ -19,7 +19,10 @@ $csrf_token = $_SESSION['csrf_token'];
     <link href="css/appcsslib.css" rel="stylesheet">
     <link href="css/web-app.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert2 END -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
@@ -37,38 +40,38 @@ $csrf_token = $_SESSION['csrf_token'];
 
 <body>
     <div class='container-fluid my-4'>
-    <div class='d-flex flex-wrap align-items-center justify-content-center gap-2'>
-        
-        <div class="d-flex align-items-center justify-content-center">
-            <button id='calLast' class='btn btn-outline-info btn-sm'>
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            
-            <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 120px; text-align: center; font-size: 1.25rem;' id="displayYM"></h3>
-            
-            <button id='calNext' class='btn btn-outline-info btn-sm'>
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
+        <div class='d-flex flex-wrap align-items-center justify-content-center gap-2'>
 
-        <div class="d-flex align-items-center gap-2">
-            <button id='calNow' class='btn btn-secondary btn-sm'>本月</button>
+            <div class="d-flex align-items-center justify-content-center">
+                <button id='calLast' class='btn btn-outline-info btn-sm'>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
 
-            <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px; width: auto; min-width: 100px;">
-                <option value="">所有地點</option>
-                <option value="醫院">醫院</option>
-                <option value="園區">園區</option>
-                <option value="水電">水電</option>
-            </select>
+                <h3 class='mb-0 mx-2' style='font-weight: 600; min-width: 120px; text-align: center; font-size: 1.25rem;' id="displayYM"></h3>
 
-            <div class="btn-group">
-                <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
-                <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
+                <button id='calNext' class='btn btn-outline-info btn-sm'>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button id='calNow' class='btn btn-secondary btn-sm'>本月</button>
+
+                <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px; width: auto; min-width: 100px;">
+                    <option value="">所有地點</option>
+                    <option value="醫院">醫院</option>
+                    <option value="園區">園區</option>
+                    <option value="水電">水電</option>
+                </select>
+
+                <div class="btn-group">
+                    <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
+                    <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
+                </div>
+            </div>
+
         </div>
-        
     </div>
-</div>
 
     <div id="tb" class="container-fluid"></div>
 
