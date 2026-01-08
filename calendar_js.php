@@ -33,24 +33,6 @@ $csrf_token = $_SESSION['csrf_token'];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- 字體 END -->
-
-    <style>
-        /* 補充：確保日曆格子在原生 BS5 下的高度表現 */
-        .calendar_cell {
-            min-height: 120px;
-            cursor: pointer;
-            vertical-align: top;
-        }
-
-        .today-highlight {
-            background-color: #fff9db !important;
-        }
-
-        .cell-empty {
-            background-color: #f8f9fa;
-            cursor: default;
-        }
-    </style>
 </head>
 
 <body>
