@@ -21,7 +21,13 @@ let lastFocusElement = null;
 /* --- 3. 頁面初始化與監聽 --- */
 document.addEventListener('DOMContentLoaded', function () {
     initscal(ym);
-
+    // 在顯示 SweetAlert2 之前，或者直接在頁面初始化時執行
+    document.addEventListener('focusin', (e) => {
+        if (e.target.closest('.swal2-container')) {
+            e.stopImmediatePropagation();
+        }
+    }, true);
+    // 在顯示 SweetAlert2 之前，或者直接在頁面初始化時執行 END
     // 視圖切換：月
     document.getElementById('viewMonth')?.addEventListener('click', function () {
         currentView = "month";
@@ -134,32 +140,77 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 400);
     });
 
-    document.getElementById('btnDeleteInView')?.addEventListener('click', async function () {
+    document.getElementById('btnDeleteInView')?.addEventListener('click', function () {
         if (!currentViewEvent) return;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-        if (confirm(`您確定要刪除「${currentViewEvent.event_title}」嗎？`)) {
-            const formData = new URLSearchParams();
-            formData.append('event_id', currentViewEvent.event_id);
-            formData.append('csrf_token', csrfToken);
+        // 1. 生成題目
+        const n1 = Math.floor(Math.random() * 10) + 1;
+        const n2 = Math.floor(Math.random() * 10) + 1;
+        const ans = n1 + n2;
 
-            const response = await fetch('api/delete_event.php', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
+        // 2. 顯示 SweetAlert2 對話框
+        Swal.fire({
+            title: '確認刪除活動？',
+            html: `您確定要刪除「<b>${currentViewEvent.event_title}</b>」嗎？<br><br>請輸入驗證計算結果：<br><b>${n1} + ${n2} = ?</b>`,
+            input: 'text',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '確定刪除',
+            cancelButtonText: '取消',
+            focusConfirm: false,
+            // 驗證輸入內容
+            preConfirm: (value) => {
+                if (!value) {
+                    Swal.showValidationMessage('請輸入計算結果');
+                    return false;
+                }
+                if (parseInt(value) !== ans) {
+                    Swal.showValidationMessage('計算錯誤，請重新確認');
+                    return false;
+                }
+                return true;
+            }
+        }).then(async (result) => {
+            // 如果使用者點擊「確定刪除」且通過驗證
+            if (result.isConfirmed) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                const formData = new URLSearchParams();
+                formData.append('event_id', currentViewEvent.event_id);
+                formData.append('csrf_token', csrfToken);
 
-            if (result.rs == "1") {
-                hideModal('viewEventModal');
-                // 這裡假設您有引用 sweetalert，若無可改回 alert
-                if (typeof showSwal === 'function') {
-                    showSwal("刪除成功", true, "", () => initscal(ym));
-                } else {
-                    alert("刪除成功");
-                    initscal(ym);
+                try {
+                    const response = await fetch('api/delete_event.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const res = await response.json();
+
+                    if (res.rs == "1") {
+                        // 關閉原本的活動詳情 Modal
+                        hideModal('viewEventModal');
+
+                        // 顯示成功的 SweetAlert
+                        Swal.fire({
+                            title: '已刪除！',
+                            text: '活動已成功從日曆中移除。',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        // 重新整理日曆
+                        if (typeof initscal === 'function') initscal(ym);
+                    } else {
+                        Swal.fire('錯誤', res.msg || '刪除失敗', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('錯誤', '連線到伺服器時發生問題', 'error');
                 }
             }
-        }
+        });
     });
 });
 
