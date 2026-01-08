@@ -24,6 +24,7 @@ $publisher   = $_POST['event_publisher'] ?? '';
 $location    = $_POST['event_location'] ?? '';
 $start_date  = $_POST['event_start_date'] ?? '';
 $end_date    = $_POST['event_end_date'] ?? '';
+$category = $_POST['event_category'] ?? '';
 $lector      = $_POST['event_lector'] ?? '';
 $organizer   = $_POST['event_organizer'] ?? '';
 $implementer = $_POST['event_implementer'] ?? '';
@@ -45,6 +46,7 @@ try {
                 event_location = :location,
                 event_start_date = :start_date,
                 event_end_date = :end_date,
+                event_category = :category,
                 event_lector = :lector,
                 event_organizer = :organizer,
                 event_implementer = :implementer,
@@ -60,6 +62,7 @@ try {
             ':start_date'  => $start_date,
             ':end_date'    => $end_date,
             ':lector'      => $lector,
+            ':category'    => $category,
             ':organizer'   => $organizer,
             ':implementer' => $implementer,
             ':title'       => $title,
@@ -78,7 +81,7 @@ try {
                     :publisher, :location, :start_date, 
                     :end_date, :lector, :organizer, 
                     :implementer, :title, :note, 
-                    '一般', :event_date
+                    :category, :event_date
                 )";
 
         $params = [
@@ -86,6 +89,7 @@ try {
             ':location'    => $location,
             ':start_date'  => $start_date,
             ':end_date'    => $end_date,
+            ':category'    => $category,
             ':lector'      => $lector,
             ':organizer'   => $organizer,
             ':implementer' => $implementer,

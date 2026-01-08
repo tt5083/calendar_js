@@ -104,6 +104,10 @@ $csrf_token = $_SESSION['csrf_token'];
                                 <input type="datetime-local" class="form-control" name="event_end_date">
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">類別 <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="event_category" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">講師 <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="event_lector" required>
                             </div>
