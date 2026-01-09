@@ -161,13 +161,13 @@ $csrf_token = $_SESSION['csrf_token'];
         <table class='table table-bordered align-middle'>
             <thead class="table-light">
                 <tr>
-                    <th class="text-center text-danger">日</th>
-                    <th class="text-center">一</th>
-                    <th class="text-center">二</th>
-                    <th class="text-center">三</th>
-                    <th class="text-center">四</th>
-                    <th class="text-center">五</th>
-                    <th class="text-center text-primary">六</th>
+                    <th class="text-center text-danger">星期日</th>
+                    <th class="text-center">星期一</th>
+                    <th class="text-center">星期二</th>
+                    <th class="text-center">星期三</th>
+                    <th class="text-center">星期四</th>
+                    <th class="text-center">星期五</th>
+                    <th class="text-center text-primary">星期六</th>
                 </tr>
             </thead>
             <tbody>
@@ -246,18 +246,20 @@ $csrf_token = $_SESSION['csrf_token'];
             </tbody>
             <tfoot class="month-notes-footer bg-light">
                 <tr>
-                    <td class="fw-bold text-center py-3">當週備註</td>
-                    <td colspan="7" class="p-2">
-                        {{#if notes.length}}
-                            {{#each notes}}
-                            <div class="note-card-row mb-1 {{#if isToday}}text-primary fw-bold{{/if}}">
-                                <span class="badge bg-info me-2">{{shortDate}}</span>
-                                <span class="note-text-content">{{event_note}}</span>
-                            </div>
-                            {{/each}}
-                        {{else}}
-                            <span class="text-muted small px-3">本週尚無活動備註。</span>
-                        {{/if}}
+                    <td colspan="1" class="fw-bold text-center py-3">當週備註</td>
+                    <td colspan="6" class="p-2">
+                        <div id="month-notes-summary">
+                            {{#if notes.length}}
+                                {{#each notes}}
+                                <div class="note-card-row mb-1 {{#if isToday}}text-primary fw-bold{{/if}}">
+                                    <span class="badge bg-secondary me-2">{{shortDate}}</span>
+                                    <span class="note-text-content">{{event_note}}</span>
+                                </div>
+                                {{/each}}
+                            {{else}}
+                                <span class="text-muted small px-3">本週尚無活動備註。</span>
+                            {{/if}}
+                        </div>
                     </td>
                 </tr>
             </tfoot>

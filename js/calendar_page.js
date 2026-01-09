@@ -294,7 +294,7 @@ function renderMonthView() {
 
 function renderWeekView() {
     const todayStr = moment().format("YYYY-MM-DD");
-    const weekNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+    const weekNames = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
     let days = [];
     let allFilteredNotes = [];
 
@@ -433,75 +433,98 @@ function hideModal(id) {
         }, { once: true });
     }
 }
-function initDragAndDrop() {
-    // 取得所有日期格子的活動容器
-    const containers = document.querySelectorAll('.event-container');
 
+function initDragAndDrop() {
+    const containers = document.querySelectorAll('.event-container');
+    
     containers.forEach(container => {
-        // 防止重複初始化
         if (container.classList.contains('drag-ready')) return;
         container.classList.add('drag-ready');
 
         new Sortable(container, {
             group: 'calendar-events',
             animation: 150,
-            ghostClass: 'bg-light', // 拖動時的原地虛影顏色
-            // --- 新增以下三個參數 ---
-            fallbackOnBody: true,    // 避免拖拽時被父元素遮擋
-            swapThreshold: 0.65,     // 增加感應靈敏度
-            draggable: ".event-item-box", // 明確指定「誰」可以被拖動
+            ghostClass: 'bg-light',
             onEnd: async function (evt) {
-    const eventId = evt.item.getAttribute('data-id');
-    const newCell = evt.to.closest('.calendar_cell');
-    if (!newCell) return;
-    
-    const newDate = newCell.dataset.date; // 格式: 2026-01-20
-    const oldDate = evt.from.closest('.calendar_cell').dataset.date;
+                const eventId = evt.item.getAttribute('data-id');
+                const newCell = evt.to.closest('.calendar_cell');
+                if (!newCell) return;
+                
+                const newDate = newCell.dataset.date;
+                const oldDate = evt.from.closest('.calendar_cell').dataset.date;
 
-    if (newDate && newDate !== oldDate) {
-        // --- 1. 從全域資料中找出原始活動內容 ---
-        let originalEvent = null;
-        Object.values(window.eventsData).flat().forEach(ev => {
-            if(ev.event_id == eventId) originalEvent = ev;
-        });
+                // 只有日期變動才觸發
+                if (newDate && newDate !== oldDate) {
+                    
+                    // --- 1. 生成驗證題目 ---
+                    const n1 = Math.floor(Math.random() * 10) + 1;
+                    const n2 = Math.floor(Math.random() * 10) + 1;
+                    const ans = n1 + n2;
 
-        if (!originalEvent) return;
+                    // --- 2. 彈出驗證視窗 ---
+                    Swal.fire({
+                        title: '確認移動活動？',
+                        html: `您正試圖將活動移動至 <b>${newDate}</b><br><br>請輸入驗證計算結果：<br><b>${n1} + ${n2} = ?</b>`,
+                        input: 'text',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: '確定移動',
+                        cancelButtonText: '取消',
+                        allowOutsideClick: false, // 防止誤觸外面關閉
+                        preConfirm: (value) => {
+                            if (!value) {
+                                Swal.showValidationMessage('請輸入計算結果');
+                                return false;
+                            }
+                            if (parseInt(value) !== ans) {
+                                Swal.showValidationMessage('計算錯誤，請重新確認');
+                                return false;
+                            }
+                            return true;
+                        }
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            // --- 使用者驗證成功：執行存檔 ---
+                            
+                            // 獲取原始資料以組合時間 (如同之前的邏輯)
+                            let originalEvent = null;
+                            Object.values(window.eventsData).flat().forEach(ev => {
+                                if(ev.event_id == eventId) originalEvent = ev;
+                            });
+                            if (!originalEvent) return;
 
-        // --- 2. 組合新的時間字串 ---
-        // 抓取原本的小時:分鐘:秒 (例如 "08:00:00")
-        const oldStartFull = moment(originalEvent.event_start_date);
-        const oldEndFull = originalEvent.event_end_date ? moment(originalEvent.event_end_date) : null;
+                            const oldStartFull = moment(originalEvent.event_start_date);
+                            const oldEndFull = originalEvent.event_end_date ? moment(originalEvent.event_end_date) : null;
+                            const newStartStr = newDate + ' ' + oldStartFull.format('HH:mm:ss');
+                            const newEndStr = oldEndFull ? newDate + ' ' + oldEndFull.format('HH:mm:ss') : '';
 
-        // 直接將新日期 (2026-01-20) 加上舊時間 (08:00:00)
-        const newStartStr = newDate + ' ' + oldStartFull.format('HH:mm:ss');
-        let newEndStr = '';
-        
-        if (oldEndFull) {
-            newEndStr = newDate + ' ' + oldEndFull.format('HH:mm:ss');
-        }
+                            const formData = new URLSearchParams();
+                            formData.append('event_id', eventId);
+                            formData.append('event_start_date', newStartStr);
+                            formData.append('event_end_date', newEndStr);
+                            formData.append('csrf_token', document.querySelector('meta[name="csrf-token"]')?.content);
 
-        // --- 3. 發送請求 ---
-        const formData = new URLSearchParams();
-        formData.append('event_id', eventId);
-        formData.append('event_start_date', newStartStr);
-        formData.append('event_end_date', newEndStr);
-        formData.append('csrf_token', document.querySelector('meta[name="csrf-token"]')?.content);
-
-        try {
-            const response = await fetch('api/save_event.php', { method: 'POST', body: formData });
-            const res = await response.json();
-            if (res.rs == "1") {
-                initscal(ym); // 重新載入日曆，內容就會更新為新日期
-            } else {
-                alert("移動失敗: " + res.msg);
-                initscal(ym);
+                            try {
+                                const response = await fetch('api/save_event.php', { method: 'POST', body: formData });
+                                const res = await response.json();
+                                if (res.rs == "1") {
+                                    Swal.fire({ icon: 'success', title: '已移動', timer: 1000, showConfirmButton: false });
+                                    initscal(ym); 
+                                } else {
+                                    Swal.fire('錯誤', res.msg, 'error');
+                                    initscal(ym);
+                                }
+                            } catch (e) {
+                                console.error(e);
+                                initscal(ym);
+                            }
+                        } else {
+                            // --- 使用者取消或關閉視窗：將活動彈回原位 ---
+                            initscal(ym); 
+                        }
+                    });
+                }
             }
-        } catch (e) {
-            console.error("Update error:", e);
-            initscal(ym);
-        }
-    }
-}
         });
     });
 }
