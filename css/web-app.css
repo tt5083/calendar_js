@@ -80,7 +80,7 @@ body, input, button, textarea, select {
 /* 日期圓圈標記 */
 .date-label {
     padding-top: 8px;
-    height: 40px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -288,7 +288,7 @@ h1, h2, h3, h4, .fw-bold, b, strong {
 /* 這是最關鍵的：確保沒活動的格子也能接住拖動 */
 /* 確保空的格子也能被滑鼠指入 */
 .event-container {
-    min-height: 100px !important; /* 至少要有一半格子的高度 */
+    min-height: 110px !important; /* 至少要有一半格子的高度 */
     width: 100%;
     cursor: move;
     padding-bottom: 5px;
