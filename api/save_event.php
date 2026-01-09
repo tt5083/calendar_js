@@ -40,36 +40,53 @@ if (!empty($start_date)) {
 
 try {
     if (!empty($event_id)) {
-        // --- 執行更新 (UPDATE) ---
-        $sql = "UPDATE calendar_events SET 
-                event_publisher = :publisher,
-                event_location = :location,
-                event_start_date = :start_date,
-                event_end_date = :end_date,
-                event_category = :category,
-                event_lector = :lector,
-                event_organizer = :organizer,
-                event_implementer = :implementer,
-                event_title = :title,
-                event_note = :note,
-                event_date = :event_date,
-                update_time = NOW()
-                WHERE event_id = :event_id";
-
-        $params = [
-            ':publisher'   => $publisher,
-            ':location'    => $location,
-            ':start_date'  => $start_date,
-            ':end_date'    => $end_date,
-            ':lector'      => $lector,
-            ':category'    => $category,
-            ':organizer'   => $organizer,
-            ':implementer' => $implementer,
-            ':title'       => $title,
-            ':note'        => $note,
-            ':event_date'  => $event_date,
-            ':event_id'    => $event_id
-        ];
+// --- 判斷是「拖拽更新」還是「完整表單編輯」 ---
+        // 檢查是否漏掉 title，如果沒有 title 卻有 start_date，代表這是拖拽行為
+        if (!isset($_POST['event_title']) && isset($_POST['event_start_date'])) {
+            // 【拖拽模式】：只更新日期相關欄位
+            $sql = "UPDATE calendar_events SET 
+                    event_start_date = :start_date,
+                    event_end_date = :end_date,
+                    event_date = :event_date,
+                    update_time = NOW()
+                    WHERE event_id = :event_id";
+            $params = [
+                ':start_date'  => $start_date,
+                ':end_date'    => $end_date,
+                ':event_date'  => $event_date,
+                ':event_id'    => $event_id
+            ];
+        } else {
+            // 【表單編輯模式】：更新所有欄位 (你原本的 SQL)
+            $sql = "UPDATE calendar_events SET 
+                    event_publisher = :publisher,
+                    event_location = :location,
+                    event_start_date = :start_date,
+                    event_end_date = :end_date,
+                    event_category = :category,
+                    event_lector = :lector,
+                    event_organizer = :organizer,
+                    event_implementer = :implementer,
+                    event_title = :title,
+                    event_note = :note,
+                    event_date = :event_date,
+                    update_time = NOW()
+                    WHERE event_id = :event_id";
+            $params = [
+                ':publisher'   => $publisher,
+                ':location'    => $location,
+                ':start_date'  => $start_date,
+                ':end_date'    => $end_date,
+                ':lector'      => $lector,
+                ':category'    => $category,
+                ':organizer'   => $organizer,
+                ':implementer' => $implementer,
+                ':title'       => $title,
+                ':note'        => $note,
+                ':event_date'  => $event_date,
+                ':event_id'    => $event_id
+            ];
+        }
     } else {
         // --- 執行新增 (INSERT) ---
         $sql = "INSERT INTO calendar_events (

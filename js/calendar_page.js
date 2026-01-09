@@ -226,7 +226,7 @@ async function initscal(InYM) {
         eventsData = result;
         window.eventsData = result;
 
-        console.log("資料同步成功，日期：", InYM);
+        console.log("測試資料同步成功，日期：", InYM);
         renderCalendar();
     } catch (error) {
         console.error('Error fetching events:', error);
@@ -247,6 +247,8 @@ function renderCalendar() {
         document.getElementById("displayYM").textContent = year + " 第 " + weekNum + " 週";
         renderWeekView();
     }
+    // 關鍵：渲染完 HTML 後，延遲一點點時間執行初始化
+    setTimeout(initDragAndDrop, 150);
 }
 
 function renderMonthView() {
@@ -348,7 +350,7 @@ function openAddModal(date) {
 function viewEventDetail(date, index) {
     // 1. 強制從 window.eventsData 抓取資料，避免抓到 undefined 的區域變數
     const currentData = (window.eventsData && window.eventsData[date]) ? window.eventsData[date][index] : null;
-    
+
     // 如果找不到資料就跳出
     if (!currentData) {
         console.error("找不到活動資料:", date, index);
@@ -430,4 +432,76 @@ function hideModal(id) {
             document.body.style.overflow = '';
         }, { once: true });
     }
+}
+function initDragAndDrop() {
+    // 取得所有日期格子的活動容器
+    const containers = document.querySelectorAll('.event-container');
+
+    containers.forEach(container => {
+        // 防止重複初始化
+        if (container.classList.contains('drag-ready')) return;
+        container.classList.add('drag-ready');
+
+        new Sortable(container, {
+            group: 'calendar-events',
+            animation: 150,
+            ghostClass: 'bg-light', // 拖動時的原地虛影顏色
+            // --- 新增以下三個參數 ---
+            fallbackOnBody: true,    // 避免拖拽時被父元素遮擋
+            swapThreshold: 0.65,     // 增加感應靈敏度
+            draggable: ".event-item-box", // 明確指定「誰」可以被拖動
+            onEnd: async function (evt) {
+    const eventId = evt.item.getAttribute('data-id');
+    const newCell = evt.to.closest('.calendar_cell');
+    if (!newCell) return;
+    
+    const newDate = newCell.dataset.date; // 格式: 2026-01-20
+    const oldDate = evt.from.closest('.calendar_cell').dataset.date;
+
+    if (newDate && newDate !== oldDate) {
+        // --- 1. 從全域資料中找出原始活動內容 ---
+        let originalEvent = null;
+        Object.values(window.eventsData).flat().forEach(ev => {
+            if(ev.event_id == eventId) originalEvent = ev;
+        });
+
+        if (!originalEvent) return;
+
+        // --- 2. 組合新的時間字串 ---
+        // 抓取原本的小時:分鐘:秒 (例如 "08:00:00")
+        const oldStartFull = moment(originalEvent.event_start_date);
+        const oldEndFull = originalEvent.event_end_date ? moment(originalEvent.event_end_date) : null;
+
+        // 直接將新日期 (2026-01-20) 加上舊時間 (08:00:00)
+        const newStartStr = newDate + ' ' + oldStartFull.format('HH:mm:ss');
+        let newEndStr = '';
+        
+        if (oldEndFull) {
+            newEndStr = newDate + ' ' + oldEndFull.format('HH:mm:ss');
+        }
+
+        // --- 3. 發送請求 ---
+        const formData = new URLSearchParams();
+        formData.append('event_id', eventId);
+        formData.append('event_start_date', newStartStr);
+        formData.append('event_end_date', newEndStr);
+        formData.append('csrf_token', document.querySelector('meta[name="csrf-token"]')?.content);
+
+        try {
+            const response = await fetch('api/save_event.php', { method: 'POST', body: formData });
+            const res = await response.json();
+            if (res.rs == "1") {
+                initscal(ym); // 重新載入日曆，內容就會更新為新日期
+            } else {
+                alert("移動失敗: " + res.msg);
+                initscal(ym);
+            }
+        } catch (e) {
+            console.error("Update error:", e);
+            initscal(ym);
+        }
+    }
+}
+        });
+    });
 }

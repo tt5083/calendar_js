@@ -26,6 +26,7 @@ $csrf_token = $_SESSION['csrf_token'];
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <script src="js/tool.openWindow.js"></script>
     <script src="js/calendar_page.js"></script>
@@ -181,7 +182,7 @@ $csrf_token = $_SESSION['csrf_token'];
                         </div>
                         <div class="event-container">
                             {{#each filteredEvents}}
-                            <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" 
+                            <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" data-id="{{event_id}}"
                                  onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
                                 <div class="text-muted fw-bold" style="font-size: 0.75rem;">{{startTime}}-{{endTime}}</div>
                                 <div class="text-wrap">{{event_title}}({{event_implementer}}{{event_location}})</div>
@@ -229,11 +230,10 @@ $csrf_token = $_SESSION['csrf_token'];
                 <tr>
                     <td class="text-center bg-light fw-bold">全天活動</td>
                     {{#each days}}
-                    <td class="calendar_cell {{#if isToday}}today-highlight{{/if}}" 
-                        data-date="{{date}}" onclick="openAddModal('{{date}}')">
+                    <td class="calendar_cell {{#if isToday}}today-highlight{{/if}}" data-date="{{date}}" onclick="openAddModal('{{date}}')">
                         <div class="event-container">
                             {{#each filteredEvents}}
-                            <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" 
+                            <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" data-id="{{event_id}}"
                                  onclick="event.stopPropagation(); viewEventDetail('{{../date}}', {{originalIndex}})">
                                 <div class="fw-bold text-primary">{{startTime}}</div>
                                 <div class="text-wrap">{{event_title}}({{event_implementer}}{{event_location}})</div>
