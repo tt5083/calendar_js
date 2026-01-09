@@ -288,7 +288,7 @@ h1, h2, h3, h4, .fw-bold, b, strong {
 /* 這是最關鍵的：確保沒活動的格子也能接住拖動 */
 /* 確保空的格子也能被滑鼠指入 */
 .event-container {
-    min-height: 80px !important; /* 至少要有一半格子的高度 */
+    min-height: 100px !important; /* 至少要有一半格子的高度 */
     width: 100%;
     cursor: move;
     padding-bottom: 5px;
@@ -307,3 +307,15 @@ h1, h2, h3, h4, .fw-bold, b, strong {
     z-index: 10;
 }
 
+/* --- 週檢視專用高度調整 --- */
+
+/* 1. 強制週檢視的格子 (td) 基礎高度 */
+.week-view-table .calendar_cell {
+    height: 450px !important; /* 設定您理想的高度 */
+}
+
+/* 2. 確保內部的活動容器也撐開，這樣沒活動的地方也能點擊/拖放 */
+.week-view-table .event-container {
+    min-height: 420px !important; /* 略小於 td 高度即可 */
+    height: 100%;
+}

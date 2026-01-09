@@ -217,7 +217,7 @@ $csrf_token = $_SESSION['csrf_token'];
     </script>
 
     <script id="week-template" type="text/x-handlebars-template">
-        <table class='table table-bordered'>
+        <table class="table table-bordered calendar-table week-view-table mb-0">
             <thead class="table-light text-center">
                 <tr>
                     <th style="width: 100px;">時間</th>
