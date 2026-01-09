@@ -14,6 +14,7 @@ let ym = moment().format("YYYY-MM");
 let eventsData = {};
 let currentViewEvent = null;
 let filterLocation = "";
+let filterOrganizer = "";
 let currentView = "month";
 let currentWeekStart = moment().startOf('week');
 let lastFocusElement = null;
@@ -83,9 +84,15 @@ document.addEventListener('DOMContentLoaded', function () {
         initscal(ym);
     });
 
-    // 地點過濾
+    // 地點篩選
     document.getElementById('locationFilter')?.addEventListener('change', function () {
         filterLocation = this.value;
+        renderCalendar();
+    });
+
+    // 承辦單位篩選
+    document.getElementById('filterOrganizer')?.addEventListener('change', function () {
+        filterOrganizer = this.value;
         renderCalendar();
     });
 
@@ -315,8 +322,19 @@ function renderWeekView() {
 }
 
 function processEvents(dayEvents, dateStr, todayStr, noteArray) {
-    return dayEvents.map((item, idx) => ({ ...item, originalIndex: idx }))
-        .filter(item => filterLocation === "" || (item.event_location && item.event_location.includes(filterLocation)))
+return dayEvents.map((item, idx) => ({ ...item, originalIndex: idx }))
+    .filter(item => {
+        // 🔹 地點條件：沒選或符合
+        const locationMatch = filterLocation === "" || 
+                             (item.event_location && item.event_location.includes(filterLocation));
+        
+        // 🔹 承辦單位條件：沒選或符合
+        const organizerMatch = filterOrganizer === "" || 
+                              (item.event_organizer && item.event_organizer.includes(filterOrganizer));
+        
+        // ✅ 兩個條件都要符合（AND 交集）
+        return locationMatch && organizerMatch;
+    })
         .map(item => {
             if (item.event_note && item.event_note.trim() !== "") {
                 noteArray.push({
@@ -401,7 +419,7 @@ function updateNavigationButtons() {
 }
 
 function updateActiveButton(activeBtn) {
-    document.querySelectorAll(".btn-group .btn").forEach(btn => btn.classList.remove("active"));
+    document.querySelectorAll(".view-tabs .btn").forEach(btn => btn.classList.remove("active"));
     activeBtn.classList.add("active");
 }
 
@@ -436,7 +454,7 @@ function hideModal(id) {
 
 function initDragAndDrop() {
     const containers = document.querySelectorAll('.event-container');
-    
+
     containers.forEach(container => {
         if (container.classList.contains('drag-ready')) return;
         container.classList.add('drag-ready');
@@ -449,13 +467,13 @@ function initDragAndDrop() {
                 const eventId = evt.item.getAttribute('data-id');
                 const newCell = evt.to.closest('.calendar_cell');
                 if (!newCell) return;
-                
+
                 const newDate = newCell.dataset.date;
                 const oldDate = evt.from.closest('.calendar_cell').dataset.date;
 
                 // 只有日期變動才觸發
                 if (newDate && newDate !== oldDate) {
-                    
+
                     // --- 1. 生成驗證題目 ---
                     const n1 = Math.floor(Math.random() * 10) + 1;
                     const n2 = Math.floor(Math.random() * 10) + 1;
@@ -485,11 +503,11 @@ function initDragAndDrop() {
                     }).then(async (result) => {
                         if (result.isConfirmed) {
                             // --- 使用者驗證成功：執行存檔 ---
-                            
+
                             // 獲取原始資料以組合時間 (如同之前的邏輯)
                             let originalEvent = null;
                             Object.values(window.eventsData).flat().forEach(ev => {
-                                if(ev.event_id == eventId) originalEvent = ev;
+                                if (ev.event_id == eventId) originalEvent = ev;
                             });
                             if (!originalEvent) return;
 
@@ -509,7 +527,7 @@ function initDragAndDrop() {
                                 const res = await response.json();
                                 if (res.rs == "1") {
                                     Swal.fire({ icon: 'success', title: '已移動', timer: 1000, showConfirmButton: false });
-                                    initscal(ym); 
+                                    initscal(ym);
                                 } else {
                                     Swal.fire('錯誤', res.msg, 'error');
                                     initscal(ym);
@@ -520,7 +538,7 @@ function initDragAndDrop() {
                             }
                         } else {
                             // --- 使用者取消或關閉視窗：將活動彈回原位 ---
-                            initscal(ym); 
+                            initscal(ym);
                         }
                     });
                 }

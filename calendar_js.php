@@ -57,20 +57,29 @@ $csrf_token = $_SESSION['csrf_token'];
 
             <div class="d-flex align-items-center gap-2">
                 <button id='calNow' class='btn btn-secondary btn-sm'>本月</button>
-
-                <select id="locationFilter" class="form-select form-select-sm" style="border-radius: 20px; width: auto; min-width: 100px;">
+                <div class="view-tabs">
+                    <button type="button" id="viewMonth" data-view="month" class="btn active">月檢視</button>
+                    <button type="button" id="viewWeek" data-view="week" class="btn">週檢視</button>
+                </div>
+            </div>
+            <div class="filter-wrapper location-filter">
+                <select id="locationFilter" class="form-select">
                     <option value="">所有地點</option>
                     <option value="醫院">醫院</option>
                     <option value="園區">園區</option>
                     <option value="水電">水電</option>
                 </select>
-
-                <div class="btn-group">
-                    <button type="button" id="viewMonth" class="btn btn-outline-primary btn-sm active">月</button>
-                    <button type="button" id="viewWeek" class="btn btn-outline-primary btn-sm">週</button>
-                </div>
             </div>
 
+            <div class="filter-wrapper organizer-filter">
+                <select id="filterOrganizer" class="form-select">
+                    <option value="">所有承辦單位</option>
+                    <option value="電工">電工</option>
+                    <option value="加工">加工</option>
+                    <option value="綜長機構">綜長機構</option>
+                    <option value="台東">台東</option>
+                </select>
+            </div>
         </div>
     </div>
 
