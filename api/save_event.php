@@ -1,15 +1,8 @@
 <?php
 // save_event.php
-session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../connection/db.php';
-
-// CSRF Token Validation
-if (empty($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-    echo json_encode(['rs' => '0', 'msg' => '無效的請求，CSRF token 驗證失敗。']);
-    exit;
-}
 
 try {
     $pdo = get_db_connection();
@@ -30,7 +23,6 @@ $organizer   = $_POST['event_organizer'] ?? '';
 $implementer = $_POST['event_implementer'] ?? '';
 $title       = $_POST['event_title'] ?? '';
 $note        = $_POST['event_note'] ?? '';
-// CSRF token is already used, no need to process it further
 
 // 2. 處理日期
 $event_date = null;

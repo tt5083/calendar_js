@@ -1,9 +1,38 @@
 <?php
-session_start();
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+require_once __DIR__ . "/connection/default.php";
+$allitem = 0;
+$todatkeyin = 0;
+$nokeyin = 0;
+/* 'sys_header.php'; */
+if (${S}[SYSID . 'pfn'] == 1) {
+    $sql = "SELECT md_id,fn_id,fn_name,fn_url,fn_icon 
+        FROM personal_fnlist a 
+        INNER JOIN sys_function_list b ON a.fn_sn=b.fn_sn 
+        WHERE employee_id = ? AND a.rf_status = 1 ORDER BY md_id,fn_id ";
+    $rs = ${D}->{PR}($sql);
+    $rs->{EX}(array(${S}['employee_id']));
+} else {
+    $sql = "SELECT md_id,fn_id,fn_name,fn_url,fn_icon 
+        FROM sys_role_fnlist a 
+        INNER JOIN sys_function_list b ON a.fn_sn=b.fn_sn 
+        WHERE role_id = ? AND a.rf_status = 1 ORDER BY md_id,fn_id ";
+    $rs = ${D}->{PR}($sql);
+    $rs->{EX}(array(${S}[SYSID . 'u_role']));
 }
-$csrf_token = $_SESSION['csrf_token'];
+$rows = $rs->{FA}(PDO::FETCH_ASSOC);
+$NAVLIST = array();
+$lastMid = "";
+foreach ($rows as $mrow) {
+    $mid = $mrow['md_id'];
+    if ($lastMid != $mid && $mrow['fn_id'] == 0) {
+        $NAVLIST[$mid] = array();
+    }
+
+    $NAVLIST[$mid][] = $mrow;
+    $lastMid = $mid;
+}
+$icon = "";
+/* sys header.php END */
 ?>
 <!DOCTYPE html>
 <html lang="zh-Hant">
@@ -12,25 +41,31 @@ $csrf_token = $_SESSION['csrf_token'];
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="csrf-token" content="<?php echo $csrf_token; ?>">
     <title>活動日曆</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/appcsslib.css" rel="stylesheet">
     <link href="css/web-app.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- SweetAlert2 -->
+
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- SweetAlert2 END -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/jqlib.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+     -->
+    
+    
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 
     <script src="js/tool.openWindow.js"></script>
+    
     <script src="js/calendar_page.js"></script>
-
+    <script src="js/web-app.js"></script>
+    
     <link rel="shortcut icon" href="img/favicon.png">
     <!-- 測試載入字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,6 +75,49 @@ $csrf_token = $_SESSION['csrf_token'];
 </head>
 
 <body>
+    <!-- topbar starts -->
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark static-top">
+        <a class="navbar-brand ps-3" href="index.php">
+            <span id="SysTitle">日曆活動活理</span>
+        </a>
+        <!-- Navbar -->
+        <ul class="navbar-nav ms-auto mr-md-0 me-3 me-lg-4">
+            <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="themeDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-dice-d20 fa-fw"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="themeDropdown" id="themedd">
+                    <a class="dropdown-item" href="#" data-value="classic">Classic<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="cerulean">Cerulean<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="cyborg">Cyborg<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="darkly">Darkly<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="litera">Litera<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="lumen">Lumen<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="materia">Materia<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="minty">Minty<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="simplex">Simplex<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="slate">Slate<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="spacelab">Spacelab<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="solar">solar<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="united">United<span></span></a>
+                    <a class="dropdown-item" href="#" data-value="yeti">Yeti<span></span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle fa-fw"></i> <?php echo ${S}['employee_name']; ?>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="sys_users_chpwd.php">變更密碼</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" id="alogout">登出</a>
+
+                </div>
+            </li>
+        </ul>
+    </nav>
     <div class='container-fluid my-4'>
         <div class='d-flex flex-wrap align-items-center justify-content-center gap-2'>
 
@@ -165,6 +243,17 @@ $csrf_token = $_SESSION['csrf_token'];
             </div>
         </div>
     </div>
+
+    <script>
+        $(function() {
+            $('title').html('*** 日曆活動管理 ***');
+            $('#SysTitle').html('日曆活動管理');
+            $('#alogout').on('click', function() {
+                logout();
+                return false;
+            });
+        });
+    </script>
 
     <script id="calendar-template" type="text/x-handlebars-template">
         <table class='table table-bordered align-middle'>
@@ -295,7 +384,6 @@ $csrf_token = $_SESSION['csrf_token'];
             {{/each}}
         </div>
     </script>
-
 </body>
 
 </html>

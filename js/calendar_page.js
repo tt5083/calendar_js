@@ -333,19 +333,19 @@ function renderWeekView() {
 }
 
 function processEvents(dayEvents, dateStr, todayStr, noteArray) {
-return dayEvents.map((item, idx) => ({ ...item, originalIndex: idx }))
-    .filter(item => {
-        // 🔹 地點條件：沒選或符合
-        const locationMatch = filterLocation === "" || 
-                             (item.event_location && item.event_location.includes(filterLocation));
-        
-        // 🔹 承辦單位條件：沒選或符合
-        const organizerMatch = filterOrganizer === "" || 
-                              (item.event_organizer && item.event_organizer.includes(filterOrganizer));
-        
-        // ✅ 兩個條件都要符合（AND 交集）
-        return locationMatch && organizerMatch;
-    })
+    return dayEvents.map((item, idx) => ({ ...item, originalIndex: idx }))
+        .filter(item => {
+            // 🔹 地點條件：沒選或符合
+            const locationMatch = filterLocation === "" ||
+                (item.event_location && item.event_location.includes(filterLocation));
+
+            // 🔹 承辦單位條件：沒選或符合
+            const organizerMatch = filterOrganizer === "" ||
+                (item.event_organizer && item.event_organizer.includes(filterOrganizer));
+
+            // ✅ 兩個條件都要符合（AND 交集）
+            return locationMatch && organizerMatch;
+        })
         .map(item => {
             if (item.event_note && item.event_note.trim() !== "") {
                 noteArray.push({
