@@ -1,369 +1,88 @@
 /* ==========================================================================
-   【1. 系統變數定義】
-   定義全域顏色，方便一鍵更換主題，並確保全站顏色一致
+   【目錄 Index】
+   1. 變數定義 (Variables)
+   2. 全域設定 (Global & Typography)
+   3. UI 元件 (Components: Buttons, Inputs, Tabs)
+   4. 日曆核心結構 (Calendar Basic Layout)
+   5. 日曆格子與操作 (Cells & Interactions)
+   6. 活動事項 (Event Items)
+   7. 備註與側欄 (Notes & Sidebar)
+   8. 彈出視窗 (Modals)
+   ========================================================================== */
+
+/* ==========================================================================
+   【1. 變數定義 (Variables)】
+   定義全域顏色、陰影與字體，確保視覺一致性
    ========================================================================== */
 :root {
-    /* 主色系 - 活潑但專業 */
-    --cal-primary: #2563eb;         /* 現代藍 */
+    /* --- 色彩系統 --- */
+    /* 主色系 - 現代藍 */
+    --cal-primary: #2563eb;
     --cal-primary-dark: #1e40af;
     --cal-primary-light: #dbeafe;
     --cal-primary-hover: #3b82f6;
-    
-    /* 次要色系 - 增加視覺層次 */
-    --cal-secondary: #8b5cf6;       /* 紫色（用於特殊標記）*/
-    --cal-success: #10b981;         /* 綠色（成功/完成）*/
-    --cal-warning: #f59e0b;         /* 橘色（警告/重要）*/
-    --cal-danger: #ef4444;          /* 紅色（緊急/刪除）*/
-    
-    /* 今天標記 - 更醒目 */
-    --cal-today-bg: #fef3c7;        /* 溫暖的淺黃 */
-    --cal-today-accent: #f59e0b;    /* 深橘黃 */
-    --cal-today-border: #fbbf24;
-    
-    /* 中性色系 */
+
+    /* 功能色 */
+    --cal-secondary: #8b5cf6;       /* 紫色 */
+    --cal-success: #10b981;         /* 綠色 */
+    --cal-warning: #f59e0b;         /* 橘色 */
+    --cal-danger: #ef4444;          /* 紅色 */
+
+    /* 背景與邊框 */
     --cal-border: #e5e7eb;
     --cal-bg-light: #f9fafb;
     --cal-bg-hover: #f3f4f6;
+
+    /* 文字顏色 */
     --cal-text-main: #1f2937;
     --cal-text-light: #6b7280;
     --cal-text-lighter: #9ca3af;
-    
-    /* 陰影系統 - 扁平化中的層次感 */
+
+    /* 特殊標記：今天 */
+    --cal-today-bg: #fef3c7;        /* 淺黃背景 */
+    --cal-today-accent: #f59e0b;    /* 深橘強調 */
+    --cal-today-border: #fbbf24;
+
+    /* --- 陰影系統 --- */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 8px 16px -4px rgba(37, 99, 235, 0.2);
+
+    /* --- 字體系統 --- */
+    --font-main: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
 }
+
 /* ==========================================================================
-   【2. 基礎字體與全域樣式】
+   【2. 全域設定 (Global & Typography)】
+   基礎 HTML 標籤重置與字體設定
    ========================================================================== */
 body, input, button, textarea, select {
-    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "微軟正黑體", sans-serif;
+    font-family: var(--font-main);
     font-size: 15px;
+    color: #333;
+    line-height: 1.6;
+    /* 字體渲染優化 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-#tb h3 {
-    color: var(--cal-text-main);
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-/* ==========================================================================
-   【3. 日曆表格結構】
-   ========================================================================== */
-#tb .table {
-    border-collapse: collapse;
-    table-layout: fixed; /* 確保 7 欄等寬 */
-    width: 100%;
-    border: 1px solid var(--cal-border);
-}
-
-#tb th, #tb td {
-    border: 1px solid var(--cal-border) !important;
-    padding: 0;
-    vertical-align: top;
-}
-
-#tb th {
-    background-color: var(--cal-bg-light);
-    padding: 10px 0;
-    font-weight: 600;
-    text-align: center;
-    vertical-align: middle;
-}
-
-/* ==========================================================================
-   【4. 日曆格子 (Cells) 與日期標記】
-   ========================================================================== */
-.calendar_cell {
-    background-color: #ffffff;
-    height: 110px !important; /* 固定基礎高度，內容多時自動撐開 */
-    transition: background-color 0.15s ease;
-    cursor: pointer;
-}
-
-.calendar_cell:hover {
-    background-color: #f0f4f9 !important;
-}
-
-/* 今天的高亮 */
-.today-highlight {
-    background-color: var(--cal-today-bg) !important;
-}
-
-.cell-empty {
-    background-color: var(--cal-bg-light) !important;
-}
-
-/* 日期圓圈標記 */
-.date-label {
-    padding-top: 8px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.today-circle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background-color: var(--cal-primary);
-    color: #ffffff !important;
-    border-radius: 50%;
-    font-size: 13px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* ==========================================================================
-   【5. 活動事項 (Event Items)】
-   ========================================================================== */
-.event-item-box {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 10px;
-    margin: 4px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid var(--cal-border);
-    border-left: 4px solid var(--cal-primary);
-    box-shadow: var(--shadow-sm);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Hover 動畫效果 */
-.event-item-box:hover {
-    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
-    border-left-color: var(--cal-primary-hover);
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-2px) scale(1.02);
-}
-
-/* 活動方塊前面的 icon（用 CSS 繪製） */
-.event-item-box::before {
-    content: "📅";
-    font-size: 14px;
-    flex-shrink: 0;
-    opacity: 0.7;
-    transition: transform 0.3s ease;
-}
-
-.event-item-box:hover::before {
-    transform: scale(1.2) rotate(5deg);
-}
-
-/* 時間標籤 */
-.event-time-row {
-    font-size: 11px;
+/* 標題與粗體優化 */
+h1, h2, h3, h4, .fw-bold, b, strong {
     font-weight: 700;
-    color: var(--cal-primary);
-    background-color: var(--cal-primary-light);
-    padding: 2px 6px;
-    border-radius: 4px;
-    display: inline-block;
     letter-spacing: 0.02em;
 }
 
-/* 活動名稱 */
-.event-name-row {
-    font-size: 13px;
-    line-height: 1.4;
+#displayYM {
     color: var(--cal-text-main);
-    font-weight: 500;
-    word-break: break-all;
-}
-
-/* 點擊波紋效果（可選）*/
-.event-item-box::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(37, 99, 235, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.event-item-box:active::after {
-    width: 300px;
-    height: 300px;
 }
 
 /* ==========================================================================
-   【6. 備註區域 - 重點：反色提醒】
+   【3. UI 元件 (Components)】
+   按鈕、標籤頁、下拉選單
    ========================================================================== */
-.notes-label-cell {
-    background: linear-gradient(135deg, var(--cal-bg-light) 0%, #e5e7eb 100%);
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-    width: 100px;
-    padding-top: 20px !important;
-    color: var(--cal-text-main);
-    border-right: 3px solid var(--cal-primary) !important;
-}
 
-.note-card-row {
-     display: flex;
-    align-items: center;
-    background: white;
-    border: 1px solid var(--cal-border);
-    border-radius: 10px;
-    margin-bottom: 10px;
-    padding: 12px 16px;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--shadow-sm);
-    gap: 12px;
-}
-
-.note-card-row:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateX(4px);
-    border-color: var(--cal-primary-light);
-}
-
-.note-card-sidebar {
-    width: 6px;
-    background-color: var(--cal-primary);
-    flex-shrink: 0;
-}
-
-.note-card-body {
-    display: flex;
-    align-items: center;
-    padding: 10px 15px;
-    width: 100%;
-}
-
-.note-time-tag {
-    font-weight: bold;
-    color: var(--cal-primary);
-    min-width: 90px;
-}
-/* 針對備註內容文字加大 */
-.note-text-content {
-    font-size: 17px !important; /* 您想要的字體大小 */
-    line-height: 1.6;          /* 增加行高，字大才不會擠在一起 */
-    color: #333;               /* 深灰色文字 */
-}
-
-/* 備註「日期標籤」 */
-#month-notes-summary .badge {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--cal-primary) 0%, var(--cal-primary-dark) 100%);
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
-    flex-shrink: 0;
-    min-width: 90px;
-    text-align: center;
-}
-/* --- 【今天備註的反色樣式】 --- */
-
-#month-notes-summary {
-    padding: 12px;
-}
-/* 這裡統一處理：不再區分月(粗體)或週(藍色)，全部改為強烈反白提醒 */
-.note-card-row.is-today-note {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid var(--cal-today-accent);
-    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
-    transform: scale(1.02);
-    animation: pulse-glow 2s ease-in-out infinite;                /* 輕微浮起感 */
-}
-
-/* 今日備註的閃爍動畫 */
-@keyframes pulse-glow {
-    0%, 100% {
-        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
-    }
-    50% {
-        box-shadow: 0 12px 28px rgba(245, 158, 11, 0.5);
-    }
-}
-.note-card-row.is-today-note .badge {
-    background: linear-gradient(135deg, var(--cal-danger) 0%, #dc2626 100%);
-    animation: badge-bounce 1s ease-in-out infinite;
-}
-
-@keyframes badge-bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-/* 反色狀態下的內部元件顏色修正 */
-.note-card-row.is-today-note .note-time-tag,
-
-.note-card-row.is-today-note .note-divider {
-    color: #ffffff !important;
-    text-decoration: none !important;
-}
-
-/* 今日備註加上小 icon */
-.note-card-row.is-today-note::before {
-    content: "⚡";
-    font-size: 20px;
-    animation: rotate-icon 2s linear infinite;
-}
-
-@keyframes rotate-icon {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.note-card-row.is-today-note .note-text-content {
-    color: #92400e;
-    font-weight: 600;
-}
-
-.note-card-row.is-today-note .note-card-sidebar {
-    background-color: var(--cal-today-accent) !important; /* 側邊條變橘黃色，極醒目 */
-}
-/* 當備註是「今天」時，將整列背景反黃 */
-.note-card-row.text-primary {
-    background-color: #fff9c4 !important; /* 經典明亮的淺黃色 */
-    border: 1px solid #fbc02d;           /* 深黃色邊框增加質感 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* 輕微陰影讓它跳出來 */
-}
-/* ==========================================================================
-   【7. 活動詳情視窗 (View Event Modal)】
-   ========================================================================== */
-#viewEventModal .modal-body { padding: 0; }
-
-#viewEventContent .table {
-    table-layout: auto !important;
-    border-collapse: separate !important;
-    margin: 0;
-}
-
-#viewEventContent th {
-    background-color: #f1f3f4 !important;
-    color: var(--cal-text-main);
-    text-align: right !important;
-    padding: 12px 15px !important;
-    width: 130px;
-    border-bottom: 1px solid var(--cal-border) !important;
-}
-
-#viewEventContent td {
-    padding: 12px 15px !important;
-    border-bottom: 1px solid var(--cal-border) !important;
-}
-
-/* ==========================================================================
-   【8. UI 按鈕樣式 (Google Style)】
-   ========================================================================== */
+/* --- 按鈕 (Buttons) --- */
 #tb .btn-sm, #calLast, #calNext, #calNow {
     padding: 5px 18px;
     border-radius: 20px;
@@ -371,97 +90,7 @@ body, input, button, textarea, select {
     transition: all 0.2s;
 }
 
-/* 測試載入字體 */
-/* ==========================================================================
-   【字體設定 - 繁體中文優化版】
-   ========================================================================== */
-
-:root {
-    /* 定義字體變數，方便日後管理 */
-    --font-main: 'Noto Sans TC', 
-                 -apple-system, 
-                 BlinkMacSystemFont, 
-                 "Segoe UI", 
-                 Roboto, 
-                 "Helvetica Neue", 
-                 Arial, 
-                 "Microsoft JhengHei",  /* 微軟正黑體 (Windows) */
-                 "PingFang TC",         /* 蘋方 (iOS/Mac) */
-                 "Apple LiGothic Medium", 
-                 sans-serif;
-}
-
-body {
-    /* 套用字體變數 */
-    font-family: var(--font-main);
-    
-    /* 字體渲染優化：讓文字在 Mac/iOS 上更細緻 */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    
-    /* 設定預設文字顏色與行高，提升閱讀性 */
-    color: #333;
-    line-height: 1.6;
-    font-size: 16px;
-}
-
-/* 針對標題與加粗文字的精細控制 */
-h1, h2, h3, h4, .fw-bold, b, strong {
-    font-weight: 700; /* 使用思源黑體的粗體 */
-    letter-spacing: 0.02em; /* 繁體中文標題稍微拉開一點字距更美觀 */
-}
-
-/* 針對備註欄位的內容字體 */
-.note-text-content {
-    font-size: 15px !important;
-    line-height: 1.6;
-    color: var(--cal-text-main);
-    flex-grow: 1;
-}
-
-.is-today-note .note-text-content {
-    font-weight: 500; /* 今天備註用「中黑」，比標準體顯眼但不會過粗 */
-}
-
-/* 測試日曆格子RWD化 */
-/* 這是最關鍵的：確保沒活動的格子也能接住拖動 */
-/* 確保空的格子也能被滑鼠指入 */
-.event-container {
-    min-height: 110px !important; /* 至少要有一半格子的高度 */
-    width: 100%;
-    cursor: move;
-    padding-bottom: 5px;
-    display: flex;
-    flex-direction: column;
-    pointer-events: auto !important;
-}
-
-/* 增加拖動時的視覺反饋 */
-.bg-light {
-    background-color: rgba(0, 123, 255, 0.1) !important;
-    border: 2px dashed #007bff !important;
-}
-.event-item-box {
-    pointer-events: auto !important; /* 確保方塊可以接收滑鼠事件 */
-    z-index: 10;
-}
-
-/* --- 週檢視專用高度調整 --- */
-
-/* 1. 強制週檢視的格子 (td) 基礎高度 */
-.week-view-table .calendar_cell {
-    height: 450px !important; /* 設定您理想的高度 */
-}
-
-/* 2. 確保內部的活動容器也撐開，這樣沒活動的地方也能點擊/拖放 */
-.week-view-table .event-container {
-    min-height: 420px !important; /* 略小於 td 高度即可 */
-    height: 100%;
-}
-/* claude code csss 月及週美化 */
-/* ==========================================================================
-   【Tab 切換按鈕 - 現代標籤風格】
-   ========================================================================== */
+/* --- 視圖切換標籤 (View Tabs) --- */
 .view-tabs {
     display: inline-flex;
     background-color: var(--cal-bg-light);
@@ -472,16 +101,13 @@ h1, h2, h3, h4, .fw-bold, b, strong {
 }
 
 .view-tabs .btn {
-    position: relative;
     padding: 8px 24px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 14px;
     color: var(--cal-text-light);
-    background-color: transparent;
     border: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: none;
 }
 
 .view-tabs .btn:hover {
@@ -496,54 +122,34 @@ h1, h2, h3, h4, .fw-bold, b, strong {
     transform: translateY(-1px);
 }
 
-/* 加入小 icon */
-.view-tabs .btn::before {
-    margin-right: 6px;
-    font-size: 13px;
-}
+/* Tab Icons */
+.view-tabs .btn[data-view="month"]::before { content: "📆"; margin-right: 6px; }
+.view-tabs .btn[data-view="week"]::before { content: "📅"; margin-right: 6px; }
 
-.view-tabs .btn[data-view="month"]::before {
-    content: "📆";
-}
-
-.view-tabs .btn[data-view="week"]::before {
-    content: "📅";
-}
-
-/* ==========================================================================
-   【篩選器 - 搜尋框風格】
-   ========================================================================== */
+/* --- 篩選器下拉選單 (Filter Selects) --- */
 .filter-wrapper {
     position: relative;
     display: inline-block;
 }
 
+/* Icon 前綴 */
 .filter-wrapper::before {
-    content: "";
     position: absolute;
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
-    background-size: contain;
     pointer-events: none;
     opacity: 0.6;
     z-index: 1;
-}
-
-/* 地點篩選器的 icon */
-.filter-wrapper.location-filter::before {
-    content: "📍";
     font-size: 14px;
 }
 
-/* 承辦單位篩選器的 icon */
-.filter-wrapper.organizer-filter::before {
-    content: "🏢";
-    font-size: 14px;
-}
+.filter-wrapper.location-filter::before { content: "📍"; }
+.filter-wrapper.organizer-filter::before { content: "🏢"; }
 
+/* Select 本體優化 */
 .filter-wrapper select {
     appearance: none;
     padding: 8px 36px 8px 36px !important;
@@ -570,7 +176,7 @@ h1, h2, h3, h4, .fw-bold, b, strong {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
 }
 
-/* 自訂下拉箭頭 */
+/* 自定義箭頭 */
 .filter-wrapper::after {
     content: "▼";
     position: absolute;
@@ -585,4 +191,310 @@ h1, h2, h3, h4, .fw-bold, b, strong {
 
 .filter-wrapper select:focus + .filter-wrapper::after {
     transform: translateY(-50%) rotate(180deg);
+}
+
+/* ==========================================================================
+   【4. 日曆核心結構 (Calendar Basic Layout)】
+   表格與標題列
+   ========================================================================== */
+#tb .table {
+    border-collapse: collapse;
+    table-layout: fixed; /* 保持欄寬固定 */
+    width: 100%;
+    border: 1px solid var(--cal-border);
+}
+
+#tb th, #tb td {
+    border: 1px solid var(--cal-border) !important;
+    padding: 0;
+    vertical-align: top;
+}
+
+#tb th {
+    background-color: var(--cal-bg-light);
+    padding: 10px 0;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   【5. 日曆格子與操作 (Cells & Interactions)】
+   日期格、按鈕、拖曳區
+   ========================================================================== */
+.calendar_cell {
+    background-color: #ffffff;
+    height: 120px !important; /* 基礎高度 */
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.calendar_cell:hover {
+    background-color: #f0f4f9 !important;
+}
+
+.cell-empty {
+    background-color: var(--cal-bg-light) !important;
+}
+
+.today-highlight {
+    background-color: var(--cal-today-bg) !important;
+}
+
+/* --- 日期數字 (Date Label) --- */
+.date-label {
+    padding-top: 8px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.today-circle { /* 舊有樣式保留，改用 Bootstrap badge 但可備用 */
+    width: 28px; height: 28px;
+    background-color: var(--cal-primary);
+    color: #fff;
+    border-radius: 50%;
+}
+
+/* --- 新增活動按鈕 (+號) --- */
+.add-event-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cal-text-light);
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 50%;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.add-event-btn:hover {
+    color: white;
+    background-color: var(--cal-primary);
+    transform: scale(1.1);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+/* --- 活動容器 (Drag & Drop Area) --- */
+.event-container {
+    min-height: 110px !important;
+    width: 100%;
+    cursor: move;
+    padding-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto !important;
+}
+
+/* 拖曳時的視覺提示 */
+.bg-light { /* SortableJS Ghost Class */
+    background-color: rgba(0, 123, 255, 0.1) !important;
+    border: 2px dashed #007bff !important;
+}
+
+/* 週檢視的高度調整 */
+.week-view-table .calendar_cell { height: 450px !important; }
+.week-view-table .event-container { min-height: 420px !important; height: 100%; }
+
+/* ==========================================================================
+   【6. 活動事項 (Event Items)】
+   格子內的活動卡片樣式
+   ========================================================================== */
+.event-item-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    margin: 4px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid var(--cal-border);
+    border-left: 4px solid var(--cal-primary);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    pointer-events: auto !important;
+    z-index: 10;
+}
+
+.event-item-box:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+    border-left-color: var(--cal-primary-hover);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* 卡片前綴 Icon */
+.event-item-box::before {
+    content: "📅";
+    font-size: 14px;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: transform 0.3s ease;
+}
+.event-item-box:hover::before {
+    transform: scale(1.2) rotate(5deg);
+}
+
+/* 時間標籤 */
+.event-time-row {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cal-primary);
+    background-color: var(--cal-primary-light);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* 活動標題 */
+.event-name-row {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--cal-text-main);
+    font-weight: 500;
+    word-break: break-all;
+}
+
+/* 點擊漣漪效果 */
+.event-item-box::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 0; height: 0;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+.event-item-box:active::after {
+    width: 300px; height: 300px;
+}
+
+/* ==========================================================================
+   【7. 備註與側欄 (Notes & Sidebar)】
+   下方備註區域的樣式
+   ========================================================================== */
+#month-notes-summary { padding: 12px; }
+
+/* 備註卡片 */
+.note-card-row {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--cal-border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 12px 16px;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+}
+
+.note-card-row:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+    border-color: var(--cal-primary-light);
+}
+
+/* 日期 Badge */
+#month-notes-summary .badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--cal-primary) 0%, var(--cal-primary-dark) 100%);
+    min-width: 90px;
+    text-align: center;
+}
+
+.note-text-content {
+    font-size: 15px !important;
+    line-height: 1.6;
+    color: var(--cal-text-main);
+    flex-grow: 1;
+}
+
+/* --- 特殊樣式：今天備註 --- */
+.note-card-row.is-today-note {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid var(--cal-today-accent);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+    transform: scale(1.02);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* 呼吸燈效果 */
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); }
+    50% { box-shadow: 0 12px 28px rgba(245, 158, 11, 0.5); }
+}
+
+/* Badge 跳動效果 */
+.note-card-row.is-today-note .badge {
+    background: linear-gradient(135deg, var(--cal-danger) 0%, #dc2626 100%);
+    animation: badge-bounce 1s ease-in-out infinite;
+}
+@keyframes badge-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Icon 旋轉 */
+.note-card-row.is-today-note::before {
+    content: "⚡";
+    font-size: 20px;
+    animation: rotate-icon 2s linear infinite;
+}
+@keyframes rotate-icon {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.note-card-row.is-today-note .note-text-content {
+    color: #92400e;
+    font-weight: 600;
+}
+
+/* 當備註是「今天」時的額外高亮 (舊有 class 相容) */
+.note-card-row.text-primary {
+    background-color: #fff9c4 !important;
+    border: 1px solid #fbc02d;
+}
+
+/* ==========================================================================
+   【8. 彈出視窗 (Modals)】
+   活動詳情 Modal 內的樣式
+   ========================================================================== */
+#viewEventModal .modal-body { padding: 0; }
+
+#viewEventContent .table {
+    table-layout: auto !important;
+    border-collapse: separate !important;
+    margin: 0;
+}
+
+#viewEventContent th {
+    background-color: #f1f3f4 !important;
+    color: var(--cal-text-main);
+    text-align: right !important;
+    padding: 12px 15px !important;
+    width: 130px;
+    border-bottom: 1px solid var(--cal-border) !important;
+}
+
+#viewEventContent td {
+    padding: 12px 15px !important;
+    border-bottom: 1px solid var(--cal-border) !important;
 }

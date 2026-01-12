@@ -29,6 +29,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, true);
     // 在顯示 SweetAlert2 之前，或者直接在頁面初始化時執行 END
+
+    // --- 全域修正：防止 ARIA hidden 警告 ---
+    // 當任何 Modal 即將隱藏時，如果焦點還在裡面，強制移出焦點
+    // 這能同時解決手動關閉、按 Esc、點擊 backdrop 或按 X 按鈕的情境
+    document.addEventListener('hide.bs.modal', function (event) {
+        const modal = event.target;
+        // 檢查 activeElement 是否在該 modal 內
+        if (document.activeElement && (modal.contains(document.activeElement) || modal === document.activeElement)) {
+            document.activeElement.blur();
+        }
+    }, true); // 使用捕獲模式確保盡早執行
     // 視圖切換：月
     document.getElementById('viewMonth')?.addEventListener('click', function () {
         currentView = "month";
@@ -233,7 +244,7 @@ async function initscal(InYM) {
         eventsData = result;
         window.eventsData = result;
 
-        console.log("測試資料同步成功，日期：", InYM);
+        /* console.log("測試資料同步成功，日期：", InYM); */
         renderCalendar();
     } catch (error) {
         console.error('Error fetching events:', error);

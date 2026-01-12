@@ -85,7 +85,7 @@ $csrf_token = $_SESSION['csrf_token'];
 
     <div id="tb" class="container-fluid"></div>
 
-    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -147,7 +147,7 @@ $csrf_token = $_SESSION['csrf_token'];
         </div>
     </div>
 
-    <div class="modal fade" id="viewEventModal" tabindex="-1" aria-labelledby="viewEventModalLabel" aria-hidden="true">
+    <div class="modal fade" id="viewEventModal" tabindex="-1" aria-labelledby="viewEventModalLabel">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
@@ -184,11 +184,19 @@ $csrf_token = $_SESSION['csrf_token'];
                 <tr>
                     {{#each cells}}
                     <td class="calendar_cell {{#if isToday}}today-highlight{{/if}} {{#unless isMainMonth}}cell-empty{{/unless}}" 
-                        data-date="{{date}}" 
-                        {{#if isMainMonth}}onclick="openAddModal('{{date}}')"{{/if}}>
+                        data-date="{{date}}">
                         <div class="fw-bold date-label mb-1">
-                            {{#if isToday}}<span class="badge rounded-pill bg-danger">{{dayNum}}</span>{{else}}{{dayNum}}{{/if}}
+                            {{#if isToday}}
+                                <span class="badge rounded-pill bg-danger" {{#if isMainMonth}}onclick="event.stopPropagation(); openAddModal('{{date}}')" style="cursor: pointer;"{{/if}}>{{dayNum}}</span>
+                            {{else}}
+                                <span {{#if isMainMonth}}onclick="event.stopPropagation(); openAddModal('{{date}}')" style="cursor: pointer;"{{/if}}>{{dayNum}}</span>
+                            {{/if}}
                         </div>
+                        {{#if isMainMonth}}
+                        <div class="add-event-btn" onclick="event.stopPropagation(); openAddModal('{{date}}')">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                        {{/if}}
                         <div class="event-container">
                             {{#each filteredEvents}}
                             <div class="event-item-box p-1 mb-1 small border rounded bg-white shadow-sm" data-id="{{event_id}}"
