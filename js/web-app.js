@@ -2,16 +2,40 @@ function confirmMsg(message) {
     return confirm(message);
 }
 
+/**
+ * 定義登出函數 (使用 SweetAlert2)
+ */
+function logout() {
+    Swal.fire({
+        title: '確定要登出系統嗎？',
+        text: "您將結束本次登入階段",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '確定登出',
+        cancelButtonText: '取消',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 執行跳轉至後端登出處理 act=logout
+            window.location.href = 'login_CL.php?act=logout';
+        }
+    });
+}
+
 $(function () {
+    // 設置頁面標題
     $('title').html('JS版日曆');
     $('#SysTitle').html('JS版日曆');
-    $('#alogout').on('click', function () {
-        logout();
-        return false;
-    });
-    switchTheme(currentTheme);
 
-    // Prevent the content wrapper from scrolling when the fixed side navigation hovered over
+    // 登出按鈕點擊監聽 (使用事件委派，防止 AJAX 載入後失效)
+    $(document).on('click', '#alogout', function (e) {
+        e.preventDefault(); // 阻止原本的 href="#" 跳轉
+        logout();
+    });
+
+    // 側邊導航固定後的滾動處理
     $('body.fixed-nav .sidebar').on('mousewheel DOMMouseScroll wheel', function (e) {
         if ($(window).width() > 768) {
             var e0 = e.originalEvent,
@@ -21,18 +45,31 @@ $(function () {
         }
     });
 
+    // 主題切換邏輯
     $("#themedd a").on("click", function (e) {
         e.preventDefault();
-        currentTheme = $(this).attr('data-value');
-        Cookies.set('currentTheme', currentTheme, {
-            expires: 365
-        });
-        switchTheme(currentTheme);
+        var selectedTheme = $(this).attr('data-value');
+        // 假設 currentTheme 是全域變數
+        currentTheme = selectedTheme;
+        if (typeof Cookies !== 'undefined') {
+            Cookies.set('currentTheme', currentTheme, { expires: 365 });
+        }
+        if (typeof switchTheme === 'function') {
+            switchTheme(currentTheme);
+        }
     });
 
-    $.getJSON('js/datetimepicker-zh-tw.json', function (data) {
-        moment.updateLocale('zh-tw', data);
-    });
+    // Moment.js 語系載入
+    if (typeof moment !== 'undefined') {
+        $.getJSON('js/datetimepicker-zh-tw.json', function (data) {
+            moment.updateLocale('zh-tw', data);
+        });
+    }
+
+    // 初始化主題
+    if (typeof switchTheme === 'function' && typeof currentTheme !== 'undefined') {
+        switchTheme(currentTheme);
+    }
 });
 
 function ajaxPost(url, datas) {
