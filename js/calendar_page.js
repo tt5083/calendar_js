@@ -485,6 +485,18 @@ function initDragAndDrop() {
                 // 只有日期變動才觸發
                 if (newDate && newDate !== oldDate) {
 
+                    /* 取得event_title */
+                    // --- [新增] 先從全域資料中找出該活動的標題 ---
+                    let originalEvent = null;
+                    Object.values(window.eventsData).flat().forEach(ev => {
+                        if (ev.event_id == eventId) originalEvent = ev;
+                    });
+
+                    // 如果找不到資料則不執行
+                    if (!originalEvent) return;
+                    const eventTitle = originalEvent.event_title || '未命名活動';
+                    /* event_title end */
+
                     // --- 1. 生成驗證題目 ---
                     const n1 = Math.floor(Math.random() * 10) + 1;
                     const n2 = Math.floor(Math.random() * 10) + 1;
@@ -493,7 +505,7 @@ function initDragAndDrop() {
                     // --- 2. 彈出驗證視窗 ---
                     Swal.fire({
                         title: '確認移動活動？',
-                        html: `您正試圖將活動移動至 <b>${newDate}</b><br><br>請輸入驗證計算結果：<br><b>${n1} + ${n2} = ?</b>`,
+                        html: `您正試圖將 <b>[${eventTitle}]</b><br>移動至 <b>${newDate}</b><br><br>請輸入驗證計算結果：<br><b>${n1} + ${n2} = ?</b>`,
                         input: 'text',
                         icon: 'question',
                         showCancelButton: true,
