@@ -479,8 +479,9 @@ function initDragAndDrop() {
                 const newCell = evt.to.closest('.calendar_cell');
                 if (!newCell) return;
                 // --- 關鍵修正：檢查是否有日期屬性 ---
+                // 如果移動到了沒有日期的地方，直接重刷日曆讓它彈回原位
                 if (!newCell || !newCell.dataset.date) {
-                    // 如果移動到了沒有日期的地方，直接重刷日曆讓它彈回原位
+
                     Swal.fire({
                         icon: 'error',
                         title: '無效的操作',
@@ -491,6 +492,7 @@ function initDragAndDrop() {
                     initscal(ym);
                     return;
                 }
+                // 如果移動到了沒有日期的地方，直接重刷日曆讓它彈回原位 END
                 const newDate = newCell.dataset.date;
                 const oldDate = evt.from.closest('.calendar_cell').dataset.date;
 
