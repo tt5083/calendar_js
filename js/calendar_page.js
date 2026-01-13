@@ -148,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector("input[name='event_title']").value = d.event_title || '';
             document.querySelector("input[name='event_start_date']").value = d.event_start_date.replace(" ", "T").substring(0, 16);
             document.querySelector("input[name='event_end_date']").value = d.event_end_date ? d.event_end_date.replace(" ", "T").substring(0, 16) : "";
+            document.querySelector("input[name='event_category']").value = d.event_category || '';
             document.querySelector("input[name='event_location']").value = d.event_location || '';
             document.querySelector("input[name='event_lector']").value = d.event_lector || '';
             document.querySelector("input[name='event_organizer']").value = d.event_organizer || '';

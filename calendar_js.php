@@ -142,8 +142,8 @@ $icon = "";
             <div class="filter-wrapper organizer-filter">
                 <select id="filterOrganizer" class="form-select">
                     <option value="">所有承辦單位</option>
-                    <option value="電工">電工</option>
-                    <option value="加工">加工</option>
+                    <option value="醫院">醫院</option>
+                    <option value="東區職訓">東區職訓</option>
                     <option value="綜長機構">綜長機構</option>
                     <option value="台東">台東</option>
                 </select>
