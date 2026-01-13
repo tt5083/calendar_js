@@ -478,7 +478,19 @@ function initDragAndDrop() {
                 const eventId = evt.item.getAttribute('data-id');
                 const newCell = evt.to.closest('.calendar_cell');
                 if (!newCell) return;
-
+                // --- 關鍵修正：檢查是否有日期屬性 ---
+                if (!newCell || !newCell.dataset.date) {
+                    // 如果移動到了沒有日期的地方，直接重刷日曆讓它彈回原位
+                    Swal.fire({
+                        icon: 'error',
+                        title: '無效的操作',
+                        text: '請將活動移動至有效的日期格內',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    initscal(ym);
+                    return;
+                }
                 const newDate = newCell.dataset.date;
                 const oldDate = evt.from.closest('.calendar_cell').dataset.date;
 
@@ -565,6 +577,8 @@ function initDragAndDrop() {
                         }
                     });
                 }
+
+
             }
         });
     });
